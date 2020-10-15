@@ -1,0 +1,3 @@
+[submodule "submodules/BDotNetFramework"]
+	path = submodules/BDotNetFramework
+	url = git://github.com/bkio/BDotNetFramework.git
