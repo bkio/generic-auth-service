@@ -24,7 +24,7 @@ namespace AuthService.Endpoints
 
         private readonly List<string> SSOSuperAdmins;
 
-        public const string DEFAULT_TENANT_NAME = "akso";
+        public const string DEFAULT_TENANT_NAME = "default";
         public const string DEFAULT_REDIRECT_URL_ENCODED = "http%3A%2F%2Flocalhost%3A56789";
 
         public SSOAzureLoginRequest(
