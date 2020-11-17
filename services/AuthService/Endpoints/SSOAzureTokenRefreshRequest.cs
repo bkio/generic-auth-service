@@ -55,7 +55,7 @@ namespace AuthService.Endpoints
             {
                 _ErrorMessageAction?.Invoke("SSOAzureTokenRefreshRequest: POST method is accepted. But received request method:  " + _Context.Request.HttpMethod);
 
-                return BWebResponse.BadRequest("POST method is accepted. But received request method:  " + _Context.Request.HttpMethod);
+                return BWebResponse.MethodNotAllowed("POST method is accepted. But received request method:  " + _Context.Request.HttpMethod);
             }
 
             if (!BWebUtilities.DoesContextContainHeader(out List<string> ClientAuthorizationHeaderValues, out string _, _Context, "client-authorization")

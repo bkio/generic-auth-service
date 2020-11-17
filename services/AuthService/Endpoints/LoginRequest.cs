@@ -103,7 +103,7 @@ namespace AuthService.Endpoints
                 return BWebResponse.InternalError("Hash operation failed.");
             }
 
-            var AccessTokenMD5WithTokenType = "Security " + AccessTokenMD5;
+            var AccessTokenMD5WithTokenType = "Basic " + AccessTokenMD5;
 
             var QueryParameters = new BMemoryQueryParameters()
             {

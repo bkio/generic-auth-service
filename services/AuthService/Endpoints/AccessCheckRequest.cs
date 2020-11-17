@@ -130,7 +130,7 @@ namespace AuthService.Endpoints
 
             string Method;
 
-            if (AccessTokenWithTokenType.StartsWith("Security"))
+            if (AccessTokenWithTokenType.StartsWith("Basic"))
             {
                 var QueryParameters = new BMemoryQueryParameters()
                 {
