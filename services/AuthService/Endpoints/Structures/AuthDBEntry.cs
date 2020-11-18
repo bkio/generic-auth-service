@@ -20,8 +20,6 @@ namespace AuthService.Endpoints.Structures
         public const string USER_NAME_PROPERTY = UserDBEntry.USER_NAME_PROPERTY;
         public const string USER_EMAIL_PROPERTY = UserDBEntry.USER_EMAIL_PROPERTY;
 
-        public const string FINAL_ACCESS_SCOPE_PROPERTY = "finalAccessScope";
-
         public static AuthDBEntry MakeNewFromUserDBEntry(string _UserID, UserDBEntry _UserEntry)
         {
             return new AuthDBEntry()
@@ -36,8 +34,7 @@ namespace AuthService.Endpoints.Structures
         {
             USER_ID_PROPERTY,
             USER_NAME_PROPERTY,
-            USER_EMAIL_PROPERTY,
-            FINAL_ACCESS_SCOPE_PROPERTY
+            USER_EMAIL_PROPERTY
         };
 
         /// <summary>
@@ -53,11 +50,5 @@ namespace AuthService.Endpoints.Structures
 
         [JsonProperty(USER_EMAIL_PROPERTY)]
         public string UserEmail = "";
-
-        /// <summary>
-        /// Should contain the rights in baseAccessScope
-        /// </summary>
-        [JsonProperty(FINAL_ACCESS_SCOPE_PROPERTY)]
-        public List<AccessScope> FinalAccessScope = new List<AccessScope>();
     }
 }

@@ -76,12 +76,7 @@ namespace AuthService.Endpoints
                 {
                     return BWebResponse.InternalError("Grant user with rights process has been failed.");
                 }
-
-                if (!Controller_Rights_Internal.Get().GrantFinalRightsToAuthMethod(false, _UserID, _ApiKey, AccumulatedSSOMethodRightsOrDefault, _ErrorMessageAction))
-                {
-                    return BWebResponse.InternalError("Grant Final Rights To AuthMethod process has been failed.");
-                }
-
+                
                 return BWebResponse.StatusCreated("User has been created.", new JObject()
                 {
                     [UserDBEntry.KEY_NAME_USER_ID] = _UserID,

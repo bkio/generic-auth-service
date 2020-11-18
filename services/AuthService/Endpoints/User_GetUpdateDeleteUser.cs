@@ -540,6 +540,8 @@ namespace AuthService
                 }
             }
 
+            MemoryService.DeleteKey(CommonData.MemoryQueryParameters, UserBaseAccessMEntry.M_KEY_NAME_USER_ID + RequestedUserID, _ErrorMessageAction);
+
             Controller_DeliveryEnsurer.Get().DB_DeleteItem_FireAndForget(
                 _Context,
                 UserDBEntry.DBSERVICE_USERS_TABLE(),

@@ -13,19 +13,17 @@ namespace AuthService.Endpoints.Common
 {
     public class AuthenticationCommon
     {
-        public static bool FetchFromMemoryService(
+        public static bool FetchUserInfoFromMemoryService_ByMethod(
             IBMemoryServiceInterface _MemoryService,
             string _Method,
             out string _UserID,
             out string _UserEmail,
             out string _UserName,
-            out List<AccessScope> _ScopeAccess,
             Action<string> _ErrorMessageAction = null)
         {
             _UserID = null;
             _UserEmail = null;
             _UserName = null;
-            _ScopeAccess = null;
 
             var InMemoryResult = _MemoryService.GetKeyValue(CommonData.MemoryQueryParameters, AuthDBEntry.KEY_NAME_AUTH_DB_ENTRY + _Method, _ErrorMessageAction);
             if (InMemoryResult != null)
@@ -47,7 +45,6 @@ namespace AuthService.Endpoints.Common
                         return false;
                     }
 
-                    _ScopeAccess = AuthEntry.FinalAccessScope;
                     return true;
                 }
                 catch (Exception) { }
@@ -55,21 +52,19 @@ namespace AuthService.Endpoints.Common
             return false;
         }
 
-        public static bool FetchFromDatabaseService(
+        public static bool FetchUserInfoFromDatabaseService_ByMethod(
             IBDatabaseServiceInterface _DatabaseService,
             IBMemoryServiceInterface _MemoryService,
             string _Method,
             out string _UserID,
             out string _UserEmail,
             out string _UserName,
-            out List<AccessScope> _ScopeAccess,
             out BWebServiceResponse _FailureResponse,
             Action<string> _ErrorMessageAction = null)
         {
             _UserID = null;
             _UserEmail = null;
             _UserName = null;
-            _ScopeAccess = null;
             _FailureResponse = new BWebServiceResponse();
 
             string ReturnedEntryAsString = null;
@@ -99,7 +94,6 @@ namespace AuthService.Endpoints.Common
                 _UserID = ReturnedEntry.UserID;
                 _UserEmail = ReturnedEntry.UserEmail;
                 _UserName = ReturnedEntry.UserName;
-                _ScopeAccess = ReturnedEntry.FinalAccessScope;
             }
             catch (Exception e)
             {
@@ -113,6 +107,94 @@ namespace AuthService.Endpoints.Common
                 new Tuple<string, BPrimitiveType>(AuthDBEntry.KEY_NAME_AUTH_DB_ENTRY + _Method, new BPrimitiveType(ReturnedEntryAsString))
             },
             _ErrorMessageAction);
+
+            return true;
+        }
+
+        public static bool FetchBaseAccessRights_ByMethod(
+            IBDatabaseServiceInterface _DatabaseService,
+            IBMemoryServiceInterface _MemoryService,
+            string _Method,
+            out List<AccessScope> _AccessScopes,
+            out string _UserID,
+            out string _UserEmail,
+            out string _UserName,
+            out BWebServiceResponse _FailureResponse,
+            Action<string> _ErrorMessageAction = null)
+        {
+            _AccessScopes = null;
+
+            if (!FetchUserInfoFromMemoryService_ByMethod(_MemoryService, _Method, out _UserID, out _UserEmail, out _UserName, _ErrorMessageAction))
+            {
+                if (!FetchUserInfoFromDatabaseService_ByMethod(_DatabaseService, _MemoryService, _Method, out _UserID, out _UserEmail, out _UserName, out _FailureResponse, _ErrorMessageAction))
+                {
+                    return false;
+                }
+            }
+
+            return FetchBaseAccessRights_ByUserID(_DatabaseService, _MemoryService, _UserID, out _AccessScopes, out _FailureResponse, _ErrorMessageAction);
+        }
+
+        public static bool FetchBaseAccessRights_ByUserID(
+            IBDatabaseServiceInterface _DatabaseService,
+            IBMemoryServiceInterface _MemoryService,
+            string _UserID,
+            out List<AccessScope> _AccessScopes,
+            out BWebServiceResponse _FailureResponse,
+            Action<string> _ErrorMessageAction = null)
+        {
+            _AccessScopes = null;
+            _FailureResponse = new BWebServiceResponse();
+
+            var InMemoryResult = _MemoryService.GetKeyValue(CommonData.MemoryQueryParameters, UserBaseAccessMEntry.M_KEY_NAME_USER_ID + _UserID, _ErrorMessageAction);
+            if (InMemoryResult != null)
+            {
+                try
+                {
+                    _AccessScopes = JsonConvert.DeserializeObject<UserBaseAccessMEntry>(InMemoryResult.AsString).BaseAccessScope;
+                    return true;
+                }
+                catch (Exception) { }
+            }
+
+            if (!_DatabaseService.GetItem(
+                UserDBEntry.DBSERVICE_USERS_TABLE(),
+                UserDBEntry.KEY_NAME_USER_ID,
+                new BPrimitiveType(_UserID),
+                UserDBEntry.Properties,
+                out JObject UserObject,
+                _ErrorMessageAction))
+            {
+                _FailureResponse = BWebResponse.InternalError("Database fetch-user-info operation has failed.");
+                return false;
+            }
+            if (UserObject == null)
+            {
+                _FailureResponse = BWebResponse.NotFound("User does not exist.");
+                return false;
+            }
+
+            _AccessScopes = new List<AccessScope>();
+
+            if (UserObject.ContainsKey(UserDBEntry.BASE_ACCESS_SCOPE_PROPERTY))
+            {
+                var BaseAccessScopeAsArray = (JArray)UserObject[UserDBEntry.BASE_ACCESS_SCOPE_PROPERTY];
+
+                foreach (JObject ScopeObject in BaseAccessScopeAsArray)
+                {
+                    _AccessScopes.Add(JsonConvert.DeserializeObject<AccessScope>(ScopeObject.ToString()));
+                }
+            }
+
+            _MemoryService.SetKeyValue(CommonData.MemoryQueryParameters, new Tuple<string, BPrimitiveType>[]
+                {
+                    new Tuple<string, BPrimitiveType>(
+                        UserBaseAccessMEntry.M_KEY_NAME_USER_ID + _UserID,
+                        new BPrimitiveType(JsonConvert.SerializeObject(new UserBaseAccessMEntry()
+                        {
+                            BaseAccessScope = _AccessScopes
+                        })))
+                }, _ErrorMessageAction);
 
             return true;
         }

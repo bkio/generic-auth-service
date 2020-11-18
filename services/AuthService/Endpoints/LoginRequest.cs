@@ -90,9 +90,9 @@ namespace AuthService.Endpoints
                 }
             }
 
-            if (!AuthenticationCommon.FetchFromMemoryService(MemoryService, Method, out string UserID, out string _, out string _, out List<AccessScope> _, _ErrorMessageAction))
+            if (!AuthenticationCommon.FetchUserInfoFromMemoryService_ByMethod(MemoryService, Method, out string UserID, out string _, out string _, _ErrorMessageAction))
             {
-                if (!AuthenticationCommon.FetchFromDatabaseService(DatabaseService, MemoryService, Method, out UserID, out _, out _, out List<AccessScope> _, out BWebServiceResponse FailureResponse, _ErrorMessageAction))
+                if (!AuthenticationCommon.FetchUserInfoFromDatabaseService_ByMethod(DatabaseService, MemoryService, Method, out UserID, out _, out _, out BWebServiceResponse FailureResponse, _ErrorMessageAction))
                 {
                     return FailureResponse;
                 }
