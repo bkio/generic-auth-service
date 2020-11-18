@@ -80,12 +80,12 @@ namespace AuthService.Endpoints.Controllers
 
             if (!MakeQueryParameters(out BMemoryQueryParameters QueryParameters, out string _PasswordMD5_FromAccessToken)) return false;
 
-            JArray AccumulatedSSOMethodRightsOrDefault;
+            JArray NewBaseRights;
 
             if (SSOSuperAdmins.Contains(EmailWithoutPostfix))
             {
                 if (!CreateUser(out _UserID, out _, DatabaseService, EmailWithoutPostfix, OptionalName, ErrorMessageAction)) return false;
-                AccumulatedSSOMethodRightsOrDefault = new JArray()
+                NewBaseRights = new JArray()
                 {
                     JObject.Parse(JsonConvert.SerializeObject(
                     new AccessScope()
@@ -95,16 +95,11 @@ namespace AuthService.Endpoints.Controllers
                     }))
                 };
             }
-            else
-            {
-                if (!CreateUser(out _UserID, out AccumulatedSSOMethodRightsOrDefault, DatabaseService, EmailWithoutPostfix, OptionalName, ErrorMessageAction)) return false;
-            }
+            else if (!CreateUser(out _UserID, out NewBaseRights, DatabaseService, EmailWithoutPostfix, OptionalName, ErrorMessageAction)) return false;
 
             if (!CreateAuthMethod(out string _AccessMethod, _UserID, EmailWithoutPostfix, _PasswordMD5_FromAccessToken, ErrorMessageAction)) return false;
 
-            if (!Controller_Rights_Internal.Get().GrantUserWithRights(false, _UserID, AccumulatedSSOMethodRightsOrDefault, ErrorMessageAction)) return false;
-
-            if (!Controller_Rights_Internal.Get().GrantFinalRightsToAuthMethod(false, _UserID, _AccessMethod, AccumulatedSSOMethodRightsOrDefault, ErrorMessageAction)) return false;
+            if (!Controller_Rights_Internal.Get().GrantUserWithRights(false, _UserID, NewBaseRights, ErrorMessageAction)) return false;
 
             long ExpiresAt = new DateTimeOffset(DateTime.UtcNow.AddSeconds(_ExpiresInSeconds)).ToUnixTimeSeconds();
 
@@ -124,12 +119,12 @@ namespace AuthService.Endpoints.Controllers
 
         public static bool RegisterUserAsPlaceholder(out string _UserID, IBDatabaseServiceInterface _DatabaseService, string _EmailWithoutPrefix, string _Name, List<string> _SSOSuperAdmins, Action<string> _ErrorMessageAction)
         {
-            JArray AccumulatedSSOMethodRightsOrDefault;
+            JArray NewBaseRights;
 
             if (_SSOSuperAdmins.Contains(_EmailWithoutPrefix))
             {
                 if (!CreateUser(out _UserID, out _, _DatabaseService, _EmailWithoutPrefix, _Name, _ErrorMessageAction)) return false;
-                AccumulatedSSOMethodRightsOrDefault = new JArray()
+                NewBaseRights = new JArray()
                 {
                     JObject.Parse(JsonConvert.SerializeObject(
                     new AccessScope()
@@ -139,12 +134,9 @@ namespace AuthService.Endpoints.Controllers
                     }))
                 };
             }
-            else
-            {
-                if (!CreateUser(out _UserID, out AccumulatedSSOMethodRightsOrDefault, _DatabaseService, _EmailWithoutPrefix, _Name, _ErrorMessageAction)) return false;
-            }
+            else if (!CreateUser(out _UserID, out NewBaseRights, _DatabaseService, _EmailWithoutPrefix, _Name, _ErrorMessageAction)) return false;
 
-            if (!Controller_Rights_Internal.Get().GrantUserWithRights(false, _UserID, AccumulatedSSOMethodRightsOrDefault, _ErrorMessageAction)) return false;
+            if (!Controller_Rights_Internal.Get().GrantUserWithRights(false, _UserID, NewBaseRights, _ErrorMessageAction)) return false;
 
             return true;
         }
@@ -153,11 +145,10 @@ namespace AuthService.Endpoints.Controllers
         {
             if (!MakeQueryParameters(out BMemoryQueryParameters QueryParameters, out string _PasswordMD5_FromAccessToken)) return false;
 
-            if (!TryGettingAccumulatedRightsOrDefault(out JArray AccumulatedSSOMethodRightsOrDefault, out bool bSSOMethodsFound, _UserID, ErrorMessageAction)) return false;
-            
+            JArray NewBaseRights;
             if (SSOSuperAdmins.Contains(_EmailAddressWithoutPostfix))
             {
-                AccumulatedSSOMethodRightsOrDefault = new JArray()
+                NewBaseRights = new JArray()
                 {
                     JObject.Parse(JsonConvert.SerializeObject(
                     new AccessScope()
@@ -167,19 +158,11 @@ namespace AuthService.Endpoints.Controllers
                     }))
                 };
             }
-            else if (!bSSOMethodsFound)
-            {
-                if (GetUserBaseRights(_UserID, out JArray UserBaseRights, ErrorMessageAction))
-                {
-                    AccessScopeLibrary.UnionMergeRights(AccumulatedSSOMethodRightsOrDefault, UserBaseRights);
-                }
-            }
+            else if (!TryGettingBaseRightsOrDefault(out NewBaseRights, _UserID, ErrorMessageAction)) return false;
 
             if (!CreateAuthMethod(out string _AccessMethod, _UserID, _EmailAddressWithoutPostfix, _PasswordMD5_FromAccessToken, ErrorMessageAction)) return false;
 
-            if (!Controller_Rights_Internal.Get().GrantUserWithRights(false, _UserID, AccumulatedSSOMethodRightsOrDefault, ErrorMessageAction)) return false;
-
-            if (!Controller_Rights_Internal.Get().GrantFinalRightsToAuthMethod(false, _UserID, _AccessMethod, AccumulatedSSOMethodRightsOrDefault, ErrorMessageAction)) return false;
+            if (!Controller_Rights_Internal.Get().GrantUserWithRights(false, _UserID, NewBaseRights, ErrorMessageAction)) return false;
 
             long ExpiresAt = new DateTimeOffset(DateTime.UtcNow.AddSeconds(_ExpiresInSeconds)).ToUnixTimeSeconds();
 
@@ -341,10 +324,10 @@ namespace AuthService.Endpoints.Controllers
             return true;
         }
 
-        private static bool CreateUser(out string _UserID, out JArray _AccumulatedSSOMethodRightsOrDefault, IBDatabaseServiceInterface _DatabaseService, string _EmailWithoutPostfix, string _OptionalName, Action<string> _ErrorMessageAction)
+        private static bool CreateUser(out string _UserID, out JArray _BaseRightsOrDefault, IBDatabaseServiceInterface _DatabaseService, string _EmailWithoutPostfix, string _OptionalName, Action<string> _ErrorMessageAction)
         {
             _UserID = null;
-            _AccumulatedSSOMethodRightsOrDefault = null;
+            _BaseRightsOrDefault = null;
 
             var EmailAddressWithPostfix = _EmailWithoutPostfix + EMAIL_USER_NAME_POSTFIX;
 
@@ -392,17 +375,10 @@ namespace AuthService.Endpoints.Controllers
 
                         _UserID = (string)_ExistenceCheck[UserDBEntry.KEY_NAME_USER_ID];
 
-                        if (!TryGettingAccumulatedRightsOrDefault(out _AccumulatedSSOMethodRightsOrDefault, out bool bSSOMethodsFound, _UserID, _ErrorMessageAction))
+                        if (!TryGettingBaseRightsOrDefault(out _BaseRightsOrDefault, _UserID, _ErrorMessageAction))
                         {
-                            _ErrorMessageAction?.Invoke("Error: Controller_SSOAccessToken->CreateUser: TryGettingAccumulatedRightsOrDefault has failed.");
+                            _ErrorMessageAction?.Invoke("Error: Controller_SSOAccessToken->CreateUser: TryGettingBaseRightsOrDefault has failed.");
                             return false;
-                        }
-                        if (!bSSOMethodsFound)
-                        {
-                            if (GetUserBaseRights(_UserID, out JArray UserBaseRights, _ErrorMessageAction))
-                            {
-                                AccessScopeLibrary.UnionMergeRights(_AccumulatedSSOMethodRightsOrDefault, UserBaseRights);
-                            }
                         }
 
                         return true;
@@ -412,7 +388,7 @@ namespace AuthService.Endpoints.Controllers
                 }
 
                 _UserID = (string)JObject.Parse(ResponseString)[UserDBEntry.KEY_NAME_USER_ID];
-                if (!Controller_Rights_Internal.Get().GetUserDefaultRights(out _AccumulatedSSOMethodRightsOrDefault, _UserID, _ErrorMessageAction))
+                if (!Controller_Rights_Internal.Get().GetUserDefaultRights(out _BaseRightsOrDefault, _UserID, _ErrorMessageAction))
                 {
                     _ErrorMessageAction?.Invoke("Error: Controller_SSOAccessToken->CreateUser: GetUserDefaultRights has failed.");
                     return false;
@@ -506,27 +482,19 @@ namespace AuthService.Endpoints.Controllers
             return true;
         }
 
-        public static bool TryGettingAccumulatedRightsOrDefault(out JArray _AccumulatedRights, out bool _bSSOAuthMethodFound, string _UserID, Action<string> _ErrorMessageAction)
+        public static bool TryGettingBaseRightsOrDefault(out JArray _BaseRightsOrDefault, string _UserID, Action<string> _ErrorMessageAction)
         {
-            _bSSOAuthMethodFound = false;
-
-            if (!Controller_Rights_Internal.Get().GetUserDefaultRights(out _AccumulatedRights, _UserID, _ErrorMessageAction))
+            if (!Controller_Rights_Internal.Get().GetUserDefaultRights(out _BaseRightsOrDefault, _UserID, _ErrorMessageAction))
             {
                 return false;
             }
 
-            if (!GetSSOAuthMethods(out bool _, out List<AuthMethod> SSOAuthMethods, _UserID, _ErrorMessageAction)) return true;
-            _bSSOAuthMethodFound = SSOAuthMethods.Count > 0;
-
-            foreach (var Current in SSOAuthMethods)
+            if (!GetUserBaseRights(_UserID, out JArray _ExistingBaseRights, _ErrorMessageAction))
             {
-                var EmailWithoutPostfix = Current.UserEmail.TrimEnd(EMAIL_USER_NAME_POSTFIX);
-                if (GetSSOAuthMethodAccessRights(out JArray Rights, _UserID, EmailWithoutPostfix, Current.PasswordMD5, _ErrorMessageAction) 
-                    && Rights.Count > 0)
-                {
-                    AccessScopeLibrary.UnionMergeRights(_AccumulatedRights, Rights);
-                }
+                return false;
             }
+
+            AccessScopeLibrary.UnionMergeRights(_BaseRightsOrDefault, _ExistingBaseRights);
             return true;
         }
 
@@ -585,65 +553,7 @@ namespace AuthService.Endpoints.Controllers
 
             return false;
         }
-
-        private static bool GetSSOAuthMethodAccessRights(out JArray _Rights, string _UserID, string _EmailWithoutPostfix, string _PasswordMD5, Action<string> _ErrorMessageAction)
-        {
-            _Rights = null;
-
-            var EmailAddressWithPostfix = _EmailWithoutPostfix + EMAIL_USER_NAME_POSTFIX;
-
-            var AccessMethod = EmailAddressWithPostfix + _PasswordMD5;
-
-            var Endpoint = "http://localhost:" + LocalServerPort + "/auth/users/" + _UserID + "/access_methods/" + WebUtility.UrlEncode(AccessMethod) + "/access_rights";
-
-            using var Handler = new HttpClientHandler
-            {
-                SslProtocols = SslProtocols.Tls12 | SslProtocols.Tls11 | SslProtocols.Tls,
-                ServerCertificateCustomValidationCallback = (a, b, c, d) => true
-            };
-            using var Client = new HttpClient(Handler);
-            Client.DefaultRequestHeaders.TryAddWithoutValidation("internal-call-secret", CommonData.INTERNAL_CALL_PRIVATE_KEY);
-            Client.DefaultRequestHeaders.TryAddWithoutValidation("do-not-get-db-clearance", "false");
-            try
-            {
-                using var RequestTask = Client.GetAsync(Endpoint);
-                RequestTask.Wait();
-
-                using var Response = RequestTask.Result;
-                using var ResponseContent = Response.Content;
-
-                using var ReadResponseTask = ResponseContent.ReadAsStringAsync();
-                ReadResponseTask.Wait();
-
-                var ResponseString = ReadResponseTask.Result;
-
-                if (!Response.IsSuccessStatusCode)
-                {
-                    _ErrorMessageAction?.Invoke("Error: SSOAccessTokenValidation->GetSSOAuthMethodAccessRights: Request returned error. Endpoint: " + Endpoint + ", code: " + Response.StatusCode + ", message: " + ResponseString);
-                    return false;
-                }
-
-                _Rights = (JArray)(JObject.Parse(ResponseString)[AuthDBEntry.FINAL_ACCESS_SCOPE_PROPERTY]);
-            }
-            catch (Exception e)
-            {
-                if (e.InnerException != null && e.InnerException != e)
-                {
-                    _ErrorMessageAction?.Invoke("Error: Controller_SSOAccessToken->GetSSOAuthMethodAccessRights->Inner: " + e.InnerException.Message + ", Trace: " + e.InnerException.StackTrace);
-                }
-                if (e is AggregateException)
-                {
-                    foreach (var Inner in (e as AggregateException).InnerExceptions)
-                    {
-                        _ErrorMessageAction?.Invoke("Error: Controller_SSOAccessToken->GetSSOAuthMethodAccessRights->Aggregate->Inner: " + Inner.Message + ", Trace: " + Inner.StackTrace);
-                    }
-                }
-                _ErrorMessageAction?.Invoke("Error: Controller_SSOAccessToken->GetSSOAuthMethodAccessRights: Request failed. Endpoint: " + Endpoint + ", message: " + e.Message + ", trace: " + e.StackTrace);
-                return false;
-            }
-            return true;
-        }
-
+        
         public static bool GetSSOAuthMethods(out bool _bInternalErrorOccured, out List<AuthMethod> _SSOMethods, string _UserID, Action<string> _ErrorMessageAction)
         {
             _bInternalErrorOccured = false;

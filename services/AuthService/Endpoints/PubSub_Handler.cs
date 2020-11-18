@@ -410,7 +410,7 @@ namespace AuthService.Endpoints
                         }
                     }
 
-                    //Double ActionType check is being done; because ChangeBaseUserRight and GrantFinalRightToAuthMethod are
+                    //Double ActionType check is being done; because of ChangeBaseUserRight
                     //Http calls that also affects the UserDB table.
                     for (int i = 0; i < PathRegexes.Length; i++)
                     {
@@ -427,18 +427,6 @@ namespace AuthService.Endpoints
                                 Path,
                                 _ErrorMessageAction,
                                 Rights))
-                            {
-                                if (_bInternalErrorOccured) return false; //Retry if internal error occured
-                            }
-
-                            if (!Controller_Rights_Internal.Get().GrantFinalRightToAuthMethod(
-                                out _bInternalErrorOccured,
-                                true,/*important to set to true*/
-                                _Action.UserID,
-                                (_Action as Action_ModelCreated).AuthMethodKey,
-                                Path,
-                                Rights,
-                                _ErrorMessageAction))
                             {
                                 if (_bInternalErrorOccured) return false; //Retry if internal error occured
                             }

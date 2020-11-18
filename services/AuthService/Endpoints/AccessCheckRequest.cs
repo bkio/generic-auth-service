@@ -112,18 +112,15 @@ namespace AuthService.Endpoints
                 return BWebResponse.BadRequest("Request does not have required fields.");
             }
 
-            return OnRequest_Internal_Recursive(false, ParsedBody, _ErrorMessageAction);
+            return OnRequest_Internal_Logic(ParsedBody, _ErrorMessageAction);
         }
 
-        private BWebServiceResponse OnRequest_Internal_Recursive(
-            bool bIsThisRetry,
+        private BWebServiceResponse OnRequest_Internal_Logic(
             JObject ParsedBody,
             Action<string> _ErrorMessageAction)
         {
             var ForUrlPath = (string)ParsedBody["forUrlPath"];
             var RequestMethod = (string)ParsedBody["requestMethod"];
-
-            var ScopeAccess = new List<AccessScope>();
 
             var SSOTokenRefreshStatus = Controller_SSOAccessToken.EPerformCheckAndRefreshSuccessStatus.None;
             var AccessTokenWithTokenType = (string)ParsedBody["authorization"];
@@ -167,18 +164,15 @@ namespace AuthService.Endpoints
                 Method = _EmailAddressWithoutPostfix + Controller_SSOAccessToken.EMAIL_USER_NAME_POSTFIX + PasswordMD5FromToken;
             }
 
-            if (!AuthenticationCommon.FetchFromMemoryService(MemoryService, Method, out string UserID, out string UserEmail, out string UserName, out ScopeAccess, _ErrorMessageAction))
+            if (!AuthenticationCommon.FetchBaseAccessRights_ByMethod(DatabaseService, MemoryService, Method, out List<AccessScope> AccessScopes, out string UserID, out string UserEmail, out string UserName, out BWebServiceResponse FailureResponse, _ErrorMessageAction))
             {
-                if (!AuthenticationCommon.FetchFromDatabaseService(DatabaseService, MemoryService, Method, out UserID, out UserEmail, out UserName, out ScopeAccess, out BWebServiceResponse FailureResponse, _ErrorMessageAction))
-                {
-                    return FailureResponse;
-                }
+                return FailureResponse;
             }
 
             using (var Regexes = new StringWriter())
             {
                 bool bAuthorized = false;
-                foreach (var Access in ScopeAccess)
+                foreach (var Access in AccessScopes)
                 {
                     string CurrentRegex = BUtility.WildCardToRegular(Access.WildcardPath);
                     Regexes.Write("\n\r" + CurrentRegex);
@@ -207,11 +201,6 @@ namespace AuthService.Endpoints
                 }
                 if (!bAuthorized)
                 {
-                    //Try to grant base access rights to to fix eventual consistency errors
-                    if (!bIsThisRetry && Controller_Rights_Internal.Get().GrantBaseRightsToFinalRights(false, UserID, Method, _ErrorMessageAction))
-                    {
-                        return OnRequest_Internal_Recursive(true, ParsedBody, _ErrorMessageAction);
-                    }
                     return BWebResponse.Forbidden("You do not have sufficient rights to access to the url.");
                 }
             }

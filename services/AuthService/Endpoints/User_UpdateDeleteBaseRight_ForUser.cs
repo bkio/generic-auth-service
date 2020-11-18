@@ -104,7 +104,7 @@ namespace AuthService
                 return BWebResponse.NotFound("User does not have any base rights.");
             }
             var BaseAccessScopeAsArray = (JArray)UserObject[UserDBEntry.BASE_ACCESS_SCOPE_PROPERTY];
-            var FetchedBaseAccessScopeList = new List<AccessScope>();
+            var NewBaseAccessScopeAsList = new List<AccessScope>();
 
             //Check existence of access scope
             var ExistingAccessScopeIndex = -1;
@@ -113,13 +113,14 @@ namespace AuthService
             foreach (JObject BaseAccessScopeObject in BaseAccessScopeAsArray)
             {
                 var Scope = JsonConvert.DeserializeObject<AccessScope>(BaseAccessScopeObject.ToString());
-                FetchedBaseAccessScopeList.Add(Scope);
 
-                //Checked
                 if (ExistingAccessScopeIndex == -1 && Scope.WildcardPath == RequestedBaseRightWildcard)
                 {
                     ExistingAccessScopeIndex = j;
-                    break;
+                }
+                else
+                {
+                    NewBaseAccessScopeAsList.Add(Scope);
                 }
                 j++;
             }
@@ -127,117 +128,6 @@ namespace AuthService
             if (ExistingAccessScopeIndex == -1)
             {
                 return BWebResponse.NotFound("User does not have the given base right.");
-            }
-
-            if (UserObject.ContainsKey(UserDBEntry.AUTH_METHODS_PROPERTY))
-            {
-                var AuthMethodsAsArray = (JArray)UserObject[UserDBEntry.AUTH_METHODS_PROPERTY];
-
-                foreach (var AuthMethodToken in AuthMethodsAsArray)
-                {
-                    var AuthMethodObject = (JObject)AuthMethodToken;
-                    var _AuthMethod = JsonConvert.DeserializeObject<AuthMethod>(AuthMethodObject.ToString());
-
-                    BPrimitiveType AuthMethodKey = null;
-                    switch (_AuthMethod.Method)
-                    {
-                        case AuthMethod.Methods.USER_EMAIL_PASSWORD_METHOD:
-                            {
-                                AuthMethodKey = new BPrimitiveType(_AuthMethod.UserEmail + _AuthMethod.PasswordMD5);
-                                break;
-                            }
-                        case AuthMethod.Methods.USER_NAME_PASSWORD_METHOD:
-                            {
-                                AuthMethodKey = new BPrimitiveType(_AuthMethod.UserName + _AuthMethod.PasswordMD5);
-                                break;
-                            }
-                        case AuthMethod.Methods.API_KEY_METHOD:
-                            AuthMethodKey = new BPrimitiveType(_AuthMethod.ApiKey);
-                            break;
-                    }
-
-                    if (DatabaseService.GetItem(
-                            AuthDBEntry.DBSERVICE_AUTHMETHODS_TABLE(),
-                            AuthDBEntry.KEY_NAME_AUTH_DB_ENTRY,
-                            AuthMethodKey,
-                            AuthDBEntry.Properties,
-                            out JObject AuthObject,
-                            _ErrorMessageAction)
-                        && AuthObject != null
-                        && AuthObject.ContainsKey(AuthDBEntry.FINAL_ACCESS_SCOPE_PROPERTY))
-                    {
-                        bool bDeleteOccurredForMethod = false;
-
-                        var AuthScopeEntriesAsArray = (JArray)AuthObject[AuthDBEntry.FINAL_ACCESS_SCOPE_PROPERTY];
-                        var NewAuthScopeEntriesArray = new JArray();
-
-                        foreach (JObject AuthScopeEntryObject in AuthScopeEntriesAsArray)
-                        {
-                            var ExistingScope = JsonConvert.DeserializeObject<AccessScope>(AuthScopeEntryObject.ToString());
-
-                            bool bDelete = true;
-
-                            //Checked
-                            if (Regex.IsMatch(ExistingScope.WildcardPath, RequestedBaseRightWildcard_Regex))
-                            {
-                                //Check if it should still have the right due to other base rights
-                                foreach (var FetchedBaseAccessScope in FetchedBaseAccessScopeList)
-                                {
-                                    //Checked
-                                    if (ExistingScope.WildcardPath != FetchedBaseAccessScope.WildcardPath 
-                                        && Regex.IsMatch(ExistingScope.WildcardPath, BUtility.WildCardToRegular(FetchedBaseAccessScope.WildcardPath)))
-                                    {
-                                        bool bRightCheck = true;
-                                        foreach (var ExistingRight in ExistingScope.AccessRights)
-                                        {
-                                            if (!FetchedBaseAccessScope.AccessRights.Contains(ExistingRight))
-                                            {
-                                                bRightCheck = false;
-                                                break;
-                                            }
-                                        }
-                                        if (!bRightCheck) continue;
-                                        
-                                        bDelete = false;
-                                        break;
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                bDelete = false;
-                            }
-
-                            if (bDelete)
-                            {
-                                bDeleteOccurredForMethod = true;
-                            }
-                            else
-                            {
-                                NewAuthScopeEntriesArray.Add(AuthScopeEntryObject);
-                            }
-                        }
-
-                        if (bDeleteOccurredForMethod)
-                        {
-                            AuthObject[AuthDBEntry.FINAL_ACCESS_SCOPE_PROPERTY] = NewAuthScopeEntriesArray;
-
-                            Controller_DeliveryEnsurer.Get().DB_UpdateItem_FireAndForget(
-                                _Context,
-                                AuthDBEntry.DBSERVICE_AUTHMETHODS_TABLE(),
-                                AuthDBEntry.KEY_NAME_AUTH_DB_ENTRY,
-                                AuthMethodKey,
-                                AuthObject);
-
-                            MemoryService.SetKeyValue(CommonData.MemoryQueryParameters,
-                                new Tuple<string, BPrimitiveType>[]
-                                {
-                                    new Tuple<string, BPrimitiveType>(AuthDBEntry.KEY_NAME_AUTH_DB_ENTRY + AuthMethodKey.AsString, new BPrimitiveType(AuthObject.ToString()))
-                                },
-                                _ErrorMessageAction);
-                        }
-                    }
-                }
             }
 
             BaseAccessScopeAsArray.RemoveAt(ExistingAccessScopeIndex);
@@ -249,6 +139,16 @@ namespace AuthService
                 UserDBEntry.KEY_NAME_USER_ID,
                 UserKey,
                 UserObject);
+
+            MemoryService.SetKeyValue(CommonData.MemoryQueryParameters, new Tuple<string, BPrimitiveType>[]
+                {
+                    new Tuple<string, BPrimitiveType>(
+                        UserBaseAccessMEntry.M_KEY_NAME_USER_ID + RequestedUserID,
+                        new BPrimitiveType(JsonConvert.SerializeObject(new UserBaseAccessMEntry()
+                        {
+                            BaseAccessScope = NewBaseAccessScopeAsList
+                        })))
+                }, _ErrorMessageAction);
 
             return BWebResponse.StatusOK("Base right has been deleted.");
         }
@@ -311,7 +211,7 @@ namespace AuthService
             }
 
             var BaseAccessScopeAsArray = (JArray)UserObject[UserDBEntry.BASE_ACCESS_SCOPE_PROPERTY];
-            var FetchedBaseAccessScopeList = new List<AccessScope>();
+            var BaseAccessScopeAsList = new List<AccessScope>();
 
             //Check existence of access scope
             AccessScope ExistingAccessScope = null;
@@ -321,13 +221,12 @@ namespace AuthService
             foreach (JObject BaseAccessScopeObject in BaseAccessScopeAsArray)
             {
                 var Scope = JsonConvert.DeserializeObject<AccessScope>(BaseAccessScopeObject.ToString());
-                FetchedBaseAccessScopeList.Add(Scope);
+                BaseAccessScopeAsList.Add(Scope);
 
                 if (ExistingAccessScopeIndex == -1 && Scope.WildcardPath == RequestedBaseRightWildcard)
                 {
                     ExistingAccessScope = Scope;
                     ExistingAccessScopeIndex = j;
-                    break;
                 }
                 j++;
             }
@@ -359,121 +258,6 @@ namespace AuthService
 
             if (bDifferent)
             {
-                if (UserObject.ContainsKey(UserDBEntry.AUTH_METHODS_PROPERTY))
-                {
-                    var AuthMethodsAsArray = (JArray)UserObject[UserDBEntry.AUTH_METHODS_PROPERTY];
-
-                    foreach (var AuthMethodToken in AuthMethodsAsArray)
-                    {
-                        var AuthMethodObject = (JObject)AuthMethodToken;
-                        var MethodBase = JsonConvert.DeserializeObject<AuthMethod>(AuthMethodObject.ToString());
-
-                        string PasswordMD5 = null;
-
-                        BPrimitiveType AuthMethodKey = null;
-                        switch (MethodBase.Method)
-                        {
-                            case AuthMethod.Methods.USER_EMAIL_PASSWORD_METHOD:
-                                {
-                                    PasswordMD5 = MethodBase.PasswordMD5;
-                                    AuthMethodKey = new BPrimitiveType(MethodBase.UserEmail + PasswordMD5);
-                                    break;
-                                }
-                            case AuthMethod.Methods.USER_NAME_PASSWORD_METHOD:
-                                {
-                                    PasswordMD5 = MethodBase.PasswordMD5;
-                                    AuthMethodKey = new BPrimitiveType(MethodBase.UserName + PasswordMD5);
-                                    break;
-                                }
-                            case AuthMethod.Methods.API_KEY_METHOD:
-                                AuthMethodKey = new BPrimitiveType(MethodBase.ApiKey);
-                                break;
-                        }
-
-                        if (DatabaseService.GetItem(
-                                AuthDBEntry.DBSERVICE_AUTHMETHODS_TABLE(),
-                                AuthDBEntry.KEY_NAME_AUTH_DB_ENTRY,
-                                AuthMethodKey,
-                                AuthDBEntry.Properties,
-                                out JObject AuthObject,
-                                _ErrorMessageAction)
-                            && AuthObject != null
-                            && AuthObject.ContainsKey(AuthDBEntry.FINAL_ACCESS_SCOPE_PROPERTY))
-                        {
-                            bool bChangeOccurredForMethod = false;
-
-                            var AuthScopeEntriesAsArray = (JArray)AuthObject[AuthDBEntry.FINAL_ACCESS_SCOPE_PROPERTY];
-                            var NewAuthScopeEntriesArray = new JArray();
-
-                            foreach (JObject AuthScopeEntryObject in AuthScopeEntriesAsArray)
-                            {
-                                bool bChangeOccurredForScope = false;
-                                var ExistingScope = JsonConvert.DeserializeObject<AccessScope>(AuthScopeEntryObject.ToString());
-
-                                //Checked
-                                if (Regex.IsMatch(ExistingScope.WildcardPath, RequestedBaseRightWildcard_Regex))
-                                {
-                                    for (var i = (ExistingScope.AccessRights.Count - 1); i >= 0; i--)
-                                    {
-                                        if (!NewRights.Contains(ExistingScope.AccessRights[i]))
-                                        {
-                                            bool bFoundInOther = false;
-
-                                            //Check if it should still have the right due to other base rights
-                                            foreach (var FetchedBaseAccessScope in FetchedBaseAccessScopeList)
-                                            {
-                                                //Checked
-                                                if (ExistingScope.WildcardPath != FetchedBaseAccessScope.WildcardPath
-                                                    && Regex.IsMatch(ExistingScope.WildcardPath, BUtility.WildCardToRegular(FetchedBaseAccessScope.WildcardPath))
-                                                    && FetchedBaseAccessScope.AccessRights.Contains(ExistingScope.AccessRights[i]))
-                                                {
-                                                    bFoundInOther = true;
-                                                    break;
-                                                }
-                                            }
-
-                                            if (!bFoundInOther)
-                                            {
-                                                ExistingScope.AccessRights.RemoveAt(i);
-                                                bChangeOccurredForScope = true;
-                                                bChangeOccurredForMethod = true;
-                                            }
-                                        }
-                                    }
-                                }
-
-                                if (bChangeOccurredForScope)
-                                {
-                                    NewAuthScopeEntriesArray.Add(JObject.Parse(JsonConvert.SerializeObject(ExistingScope)));
-                                }
-                                else
-                                {
-                                    NewAuthScopeEntriesArray.Add(AuthScopeEntryObject);
-                                }
-                            }
-
-                            if (bChangeOccurredForMethod)
-                            {
-                                AuthObject[AuthDBEntry.FINAL_ACCESS_SCOPE_PROPERTY] = NewAuthScopeEntriesArray;
-
-                                Controller_DeliveryEnsurer.Get().DB_UpdateItem_FireAndForget(
-                                    _Context,
-                                    AuthDBEntry.DBSERVICE_AUTHMETHODS_TABLE(),
-                                    AuthDBEntry.KEY_NAME_AUTH_DB_ENTRY,
-                                    AuthMethodKey,
-                                    AuthObject);
-
-                                MemoryService.SetKeyValue(CommonData.MemoryQueryParameters,
-                                    new Tuple<string, BPrimitiveType>[]
-                                    {
-                                        new Tuple<string, BPrimitiveType>(AuthDBEntry.KEY_NAME_AUTH_DB_ENTRY + AuthMethodKey.AsString, new BPrimitiveType(AuthObject.ToString()))
-                                    },
-                                    _ErrorMessageAction);
-                            }
-                        }
-                    }
-                }
-
                 ExistingAccessScope.AccessRights = NewRights;
                 BaseAccessScopeAsArray[ExistingAccessScopeIndex] = JObject.Parse(JsonConvert.SerializeObject(ExistingAccessScope));
 
@@ -485,6 +269,16 @@ namespace AuthService
                     UserDBEntry.KEY_NAME_USER_ID,
                     UserKey,
                     UserObject);
+
+                MemoryService.SetKeyValue(CommonData.MemoryQueryParameters, new Tuple<string, BPrimitiveType>[]
+                    {
+                    new Tuple<string, BPrimitiveType>(
+                        UserBaseAccessMEntry.M_KEY_NAME_USER_ID + RequestedUserID,
+                        new BPrimitiveType(JsonConvert.SerializeObject(new UserBaseAccessMEntry()
+                        {
+                            BaseAccessScope = BaseAccessScopeAsList
+                        })))
+                    }, _ErrorMessageAction);
             }
 
             return BWebResponse.StatusOK("Base right has been updated.");
