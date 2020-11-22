@@ -149,7 +149,6 @@ namespace AuthService.Endpoints
                 var PathsRegex = new Tuple<string, List<string>>[]
                 {
                     new Tuple<string, List<string>>("/3d/models/" + _Action.ModelID + "*", new List<string>() { "GET" }), //Only view access
-                    new Tuple<string, List<string>>("/custom_procedures/by_model/" + _Action.ModelID + "*", new List<string>() { "GET" }), //Only view access
                     new Tuple<string, List<string>>("/3d/models/" + _Action.ModelID + "/remove_sharing_from/user_id/{shareeUserId}", new List<string>() { "DELETE" })
                 };
 
@@ -314,13 +313,11 @@ namespace AuthService.Endpoints
 
                 var PathRegexes = new Tuple<string, string[]>[]
                 {
-                    new Tuple<string, string[]>("/3d/models/" + _Action.ModelID + "*", new string[] { "GET", "POST", "PUT", "DELETE" }),
-                    new Tuple<string, string[]>("/custom_procedures/by_model/" + _Action.ModelID + "*", new string[] { "GET" })
+                    new Tuple<string, string[]>("/3d/models/" + _Action.ModelID + "*", new string[] { "GET", "POST", "PUT", "DELETE" })
                 };
                 var PathsRegexesForShared = new Tuple<string, List<string>>[]
                 {
                     new Tuple<string, List<string>>("/3d/models/" + _Action.ModelID + "*", new List<string>() { "GET" }), //Only view access
-                    new Tuple<string, List<string>>("/custom_procedures/by_model/" + _Action.ModelID + "*", new List<string>() { "GET" }), //Only view access
                     new Tuple<string, List<string>>("/3d/models/" + _Action.ModelID + "/remove_sharing_from/user_id/{shareeUserId}", new List<string>() { "DELETE" })
                 };
 

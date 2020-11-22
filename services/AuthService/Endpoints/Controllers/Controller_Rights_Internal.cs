@@ -88,12 +88,6 @@ namespace AuthService.Endpoints.Controllers
                     {
                         WildcardPath = "/3d/models/get_models_by/user_id/" + _UserID + "/*",
                         AccessRights = new List<string>() { "GET" }
-                    })),
-                JObject.Parse(JsonConvert.SerializeObject(
-                    new AccessScope()
-                    {
-                        WildcardPath = "/custom_procedures/by_user/" + _UserID + "/*",
-                        AccessRights = new List<string>() { "POST" }
                     }))
             };
 
@@ -103,12 +97,6 @@ namespace AuthService.Endpoints.Controllers
                 new AccessScope()
                 {
                     WildcardPath = "/3d/models/" + ModelId + "*",
-                    AccessRights = new List<string>() { "GET" } //Only view access
-                })));
-                _Result.Add(JObject.Parse(JsonConvert.SerializeObject(
-                new AccessScope()
-                {
-                    WildcardPath = "/custom_procedures/by_model/" + ModelId + "*",
                     AccessRights = new List<string>() { "GET" } //Only view access
                 })));
                 _Result.Add(JObject.Parse(JsonConvert.SerializeObject(
