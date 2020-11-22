@@ -98,7 +98,7 @@ namespace AuthService.Endpoints
                             ["userSharedModelIds"] = UserSharedModelIDsJArray
                         };
 
-                        // file/internal/check_models_exist will return CheckedUserModelIDs and CheckedUserSharedModelIDs list
+                        // 3d/models/internal/check_models_exist will return CheckedUserModelIDs and CheckedUserSharedModelIDs list
                         List<string> CheckedUserModelIDs = new List<string>();
                         List<string> CheckedUserSharedModelIDs = new List<string>();
 
@@ -106,7 +106,7 @@ namespace AuthService.Endpoints
 
                         var Result = BWebUtilities_GC_CloudRun.InterServicesRequest(new BWebUtilities_GC_CloudRun.InterServicesRequestRequest()
                         {
-                            DestinationServiceUrl = CADFileServiceEndpoint + "/file/internal/check_models_exist?secret=" + InternalCallPrivateKey,
+                            DestinationServiceUrl = CADFileServiceEndpoint + "/3d/models/internal/check_models_exist?secret=" + InternalCallPrivateKey,
                             RequestMethod = "POST",
                             bWithAuthToken = true,
                             UseContextHeaders = _Context,

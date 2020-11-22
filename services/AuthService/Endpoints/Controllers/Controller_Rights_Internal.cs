@@ -74,19 +74,19 @@ namespace AuthService.Endpoints.Controllers
                 JObject.Parse(JsonConvert.SerializeObject(
                     new AccessScope()
                     {
-                        WildcardPath = "/file/models",
+                        WildcardPath = "/3d/models",
                         AccessRights = new List<string>() { "PUT" }
                     })),
                 JObject.Parse(JsonConvert.SerializeObject(
                     new AccessScope()
                     {
-                        WildcardPath = "/file/models/globally_shared",
+                        WildcardPath = "/3d/models/globally_shared",
                         AccessRights = new List<string>() { "GET" }
                     })),
                 JObject.Parse(JsonConvert.SerializeObject(
                     new AccessScope()
                     {
-                        WildcardPath = "/file/get_models_by/user_id/" + _UserID + "/*",
+                        WildcardPath = "/3d/models/get_models_by/user_id/" + _UserID + "/*",
                         AccessRights = new List<string>() { "GET" }
                     })),
                 JObject.Parse(JsonConvert.SerializeObject(
@@ -102,7 +102,7 @@ namespace AuthService.Endpoints.Controllers
                 _Result.Add(JObject.Parse(JsonConvert.SerializeObject(
                 new AccessScope()
                 {
-                    WildcardPath = "/file/models/" + ModelId + "*",
+                    WildcardPath = "/3d/models/" + ModelId + "*",
                     AccessRights = new List<string>() { "GET" } //Only view access
                 })));
                 _Result.Add(JObject.Parse(JsonConvert.SerializeObject(
@@ -114,7 +114,7 @@ namespace AuthService.Endpoints.Controllers
                 _Result.Add(JObject.Parse(JsonConvert.SerializeObject(
                 new AccessScope()
                 {
-                    WildcardPath = "/file/models/" + ModelId + "/remove_sharing_from/user_id/" + _UserID,
+                    WildcardPath = "/3d/models/" + ModelId + "/remove_sharing_from/user_id/" + _UserID,
                     AccessRights = new List<string>() { "DELETE" }
                 })));
             }
@@ -138,7 +138,7 @@ namespace AuthService.Endpoints.Controllers
                 return false;
             }
 
-            var ListGloballySharedModelIdsEndpoint = CADFileServiceEndpoint + "/file/internal/globally_shared_models?secret=" + CommonData.INTERNAL_CALL_PRIVATE_KEY;
+            var ListGloballySharedModelIdsEndpoint = CADFileServiceEndpoint + "/3d/models/internal/globally_shared_models?secret=" + CommonData.INTERNAL_CALL_PRIVATE_KEY;
 
             var Result = BWebUtilities_GC_CloudRun.InterServicesRequest(new BWebUtilities_GC_CloudRun.InterServicesRequestRequest()
             {

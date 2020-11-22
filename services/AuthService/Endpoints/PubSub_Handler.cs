@@ -148,9 +148,9 @@ namespace AuthService.Endpoints
 
                 var PathsRegex = new Tuple<string, List<string>>[]
                 {
-                    new Tuple<string, List<string>>("/file/models/" + _Action.ModelID + "*", new List<string>() { "GET" }), //Only view access
+                    new Tuple<string, List<string>>("/3d/models/" + _Action.ModelID + "*", new List<string>() { "GET" }), //Only view access
                     new Tuple<string, List<string>>("/custom_procedures/by_model/" + _Action.ModelID + "*", new List<string>() { "GET" }), //Only view access
-                    new Tuple<string, List<string>>("/file/models/" + _Action.ModelID + "/remove_sharing_from/user_id/{shareeUserId}", new List<string>() { "DELETE" })
+                    new Tuple<string, List<string>>("/3d/models/" + _Action.ModelID + "/remove_sharing_from/user_id/{shareeUserId}", new List<string>() { "DELETE" })
                 };
 
                 if (!UpdateUsersSharedModelsFields(ToBeAddedUsers, _Action.ModelID, Controller_Rights_Internal.EChangeUserRightsForModelType.Add, _ErrorMessageAction)) return false;
@@ -314,14 +314,14 @@ namespace AuthService.Endpoints
 
                 var PathRegexes = new Tuple<string, string[]>[]
                 {
-                    new Tuple<string, string[]>("/file/models/" + _Action.ModelID + "*", new string[] { "GET", "POST", "PUT", "DELETE" }),
+                    new Tuple<string, string[]>("/3d/models/" + _Action.ModelID + "*", new string[] { "GET", "POST", "PUT", "DELETE" }),
                     new Tuple<string, string[]>("/custom_procedures/by_model/" + _Action.ModelID + "*", new string[] { "GET" })
                 };
                 var PathsRegexesForShared = new Tuple<string, List<string>>[]
                 {
-                    new Tuple<string, List<string>>("/file/models/" + _Action.ModelID + "*", new List<string>() { "GET" }), //Only view access
+                    new Tuple<string, List<string>>("/3d/models/" + _Action.ModelID + "*", new List<string>() { "GET" }), //Only view access
                     new Tuple<string, List<string>>("/custom_procedures/by_model/" + _Action.ModelID + "*", new List<string>() { "GET" }), //Only view access
-                    new Tuple<string, List<string>>("/file/models/" + _Action.ModelID + "/remove_sharing_from/user_id/{shareeUserId}", new List<string>() { "DELETE" })
+                    new Tuple<string, List<string>>("/3d/models/" + _Action.ModelID + "/remove_sharing_from/user_id/{shareeUserId}", new List<string>() { "DELETE" })
                 };
 
                 try
