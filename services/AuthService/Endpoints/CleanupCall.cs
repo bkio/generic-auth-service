@@ -9,7 +9,6 @@ using AuthService.Endpoints.Structures;
 using BCloudServiceUtilities;
 using BCommonUtilities;
 using BWebServiceUtilities;
-using BWebServiceUtilities_GC;
 using ServiceUtilities;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -104,7 +103,7 @@ namespace AuthService.Endpoints
 
                         GetTracingService()?.On_FromServiceToService_Sent(_Context, _ErrorMessageAction);
 
-                        var Result = BWebUtilities_GC_CloudRun.InterServicesRequest(new BWebUtilities_GC_CloudRun.InterServicesRequestRequest()
+                        var Result = BWebServiceExtraUtilities.InterServicesRequest(new BWebServiceExtraUtilities.InterServicesRequestRequest()
                         {
                             DestinationServiceUrl = CADFileServiceEndpoint + "/3d/models/internal/check_models_exist?secret=" + InternalCallPrivateKey,
                             RequestMethod = "POST",

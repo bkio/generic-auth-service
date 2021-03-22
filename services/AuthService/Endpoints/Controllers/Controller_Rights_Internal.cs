@@ -11,7 +11,6 @@ using AuthService.Endpoints.Common;
 using AuthService.Endpoints.Structures;
 using BCloudServiceUtilities;
 using BWebServiceUtilities;
-using BWebServiceUtilities_GC;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -128,7 +127,7 @@ namespace AuthService.Endpoints.Controllers
 
             var ListGloballySharedModelIdsEndpoint = CADFileServiceEndpoint + "/3d/models/internal/globally_shared_models?secret=" + CommonData.INTERNAL_CALL_PRIVATE_KEY;
 
-            var Result = BWebUtilities_GC_CloudRun.InterServicesRequest(new BWebUtilities_GC_CloudRun.InterServicesRequestRequest()
+            var Result = BWebServiceExtraUtilities.InterServicesRequest(new BWebServiceExtraUtilities.InterServicesRequestRequest()
             {
                 DestinationServiceUrl = ListGloballySharedModelIdsEndpoint,
                 RequestMethod = "GET",
