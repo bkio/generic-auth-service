@@ -46,6 +46,9 @@ namespace AuthService
                     new string[] { "AZ_STORAGE_ACCOUNT_NAME" },
                     new string[] { "AZ_STORAGE_ACCOUNT_ACCESS_KEY" },
 
+                    new string[] { "AZ_SERVICEBUS_NAMESPACE_ID" },
+                    new string[] { "AZ_SERVICEBUS_NAMESPACE_CONNECTION_STRING" },
+
                     new string[] { "MONGODB_CONNECTION_STRING" },
                     new string[] { "MONGODB_DATABASE" },
 
@@ -57,14 +60,11 @@ namespace AuthService
                     new string[] { "REDIS_PASSWORD" },
 
                     new string[] { "SSO_SUPER_ADMINS" },
-
                     new string[] { "AZURE_AD_APP_ID" },
                     new string[] { "AZURE_AD_CLIENT_SECRET" },
-
                     new string[] { "AZURE_AD_FETCH_USERS_CLIENT_ID" },
                     new string[] { "AZURE_AD_FETCH_USERS_CLIENT_SECRET" },
                     new string[] { "AZURE_AD_FETCH_USERS_APP_OBJECT_ID" },
-
                     new string[] { "AZURE_OAUTH2_TOKEN_REQUEST_URL" },
 
                     new string[] { "INTERNAL_CALL_PRIVATE_KEY" }
