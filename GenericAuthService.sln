@@ -101,6 +101,22 @@ Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "ServiceUtilities_PubSub_DB_
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "ServiceUtilities_PubSub_Users", "submodules\BDotNetFramework\Utilities\ServiceUtilities_PubSub_Users\ServiceUtilities_PubSub_Users.shproj", "{BECBE5E8-7D82-4EC0-996F-380D24E065F1}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BCloudServiceUtilities-BFileService-AZ", "submodules\BDotNetFramework\Utilities\BCloudServiceUtilities-BFileService-AZ\BCloudServiceUtilities-BFileService-AZ.csproj", "{A280E925-CD3C-406E-8E5F-496D8E4B504B}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BCloudServiceUtilities-BLoggingService-AZ", "submodules\BDotNetFramework\Utilities\BCloudServiceUtilities-BLoggingService-AZ\BCloudServiceUtilities-BLoggingService-AZ.csproj", "{0BB779F6-2D8E-4030-84BB-3CBE8A46026B}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BCloudServiceUtilities-BPubSubService-AZ", "submodules\BDotNetFramework\Utilities\BCloudServiceUtilities-BPubSubService-AZ\BCloudServiceUtilities-BPubSubService-AZ.csproj", "{BD01A54F-6942-4457-B17A-5EDD55F5EA54}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "BServiceUtilities-FileService-AZ", "submodules\BDotNetFramework\Services\BServiceUtilities-FileService-AZ\BServiceUtilities-FileService-AZ.shproj", "{FF2A7938-4B58-4925-BFE6-C3340A70EBB4}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "BServiceUtilities-LoggingService-AZ", "submodules\BDotNetFramework\Services\BServiceUtilities-LoggingService-AZ\BServiceUtilities-LoggingService-AZ.shproj", "{3801A9BF-F27F-4810-BF83-891492713381}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "BServiceUtilities-PubSubService-AZ", "submodules\BDotNetFramework\Services\BServiceUtilities-PubSubService-AZ\BServiceUtilities-PubSubService-AZ.shproj", "{29B1DD26-FECE-4676-B6D6-745C60EF012F}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "BServiceUtilities-DatabaseService-MongoDB", "submodules\BDotNetFramework\Services\BServiceUtilities-DatabaseService-MongoDB\BServiceUtilities-DatabaseService-MongoDB.shproj", "{2EAD34EF-40E1-4FDD-B610-3B476C9F26B3}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BWebServiceUtilities-Basic", "submodules\BDotNetFramework\Utilities\BWebServiceUtilities-Basic\BWebServiceUtilities-Basic.csproj", "{B0C8425A-AF54-4679-988F-9C4A095A33B3}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		submodules\BDotNetFramework\Services\BServiceUtilities-FileService-GC\BServiceUtilities-FileService-GC.projitems*{05608816-c0da-479d-9ec5-36158a401110}*SharedItemsImports = 5
@@ -110,10 +126,12 @@ Global
 		submodules\BDotNetFramework\Services\BServiceUtilities-FileService-AWS\BServiceUtilities-FileService-AWS.projitems*{1c6c3236-f3d0-41d7-8e27-25fc29439511}*SharedItemsImports = 13
 		submodules\BDotNetFramework\Services\BServiceUtilities-PubSubService-GC\BServiceUtilities-PubSubService-GC.projitems*{1ce00f9b-1598-40bc-80b0-a184d2a68246}*SharedItemsImports = 13
 		submodules\BDotNetFramework\Services\BServiceUtilities-LoggingService-AWS\BServiceUtilities-LoggingService-AWS.projitems*{1d64afe7-5361-41bf-a1ac-95ce4b81d988}*SharedItemsImports = 13
-		submodules\BDotNetFramework\Services\BServiceUtilities-DatabaseService-GC\BServiceUtilities-DatabaseService-GC.projitems*{5771f05a-f7d2-4d11-aecb-12420f868548}*SharedItemsImports = 5
+		submodules\BDotNetFramework\Services\BServiceUtilities-PubSubService-AZ\BServiceUtilities-PubSubService-AZ.projitems*{29b1dd26-fece-4676-b6d6-745c60ef012f}*SharedItemsImports = 13
+		submodules\BDotNetFramework\Services\BServiceUtilities-DatabaseService-MongoDB\BServiceUtilities-DatabaseService-MongoDB.projitems*{2ead34ef-40e1-4fdd-b610-3b476c9f26b3}*SharedItemsImports = 13
+		submodules\BDotNetFramework\Services\BServiceUtilities-LoggingService-AZ\BServiceUtilities-LoggingService-AZ.projitems*{3801a9bf-f27f-4810-bf83-891492713381}*SharedItemsImports = 13
+		submodules\BDotNetFramework\Services\BServiceUtilities-DatabaseService-MongoDB\BServiceUtilities-DatabaseService-MongoDB.projitems*{5771f05a-f7d2-4d11-aecb-12420f868548}*SharedItemsImports = 5
 		submodules\BDotNetFramework\Services\BServiceUtilities-MemoryService-Redis\BServiceUtilities-MemoryService-Redis.projitems*{5771f05a-f7d2-4d11-aecb-12420f868548}*SharedItemsImports = 5
-		submodules\BDotNetFramework\Services\BServiceUtilities-PubSubService-GC\BServiceUtilities-PubSubService-GC.projitems*{5771f05a-f7d2-4d11-aecb-12420f868548}*SharedItemsImports = 5
-		submodules\BDotNetFramework\Services\BServiceUtilities-TracingService-GC\BServiceUtilities-TracingService-GC.projitems*{5771f05a-f7d2-4d11-aecb-12420f868548}*SharedItemsImports = 5
+		submodules\BDotNetFramework\Services\BServiceUtilities-PubSubService-AZ\BServiceUtilities-PubSubService-AZ.projitems*{5771f05a-f7d2-4d11-aecb-12420f868548}*SharedItemsImports = 5
 		submodules\BDotNetFramework\Services\BServiceUtilities\BServiceUtilities.projitems*{5771f05a-f7d2-4d11-aecb-12420f868548}*SharedItemsImports = 5
 		submodules\BDotNetFramework\Utilities\ServiceUtilities_All\ServiceUtilities_All.projitems*{5771f05a-f7d2-4d11-aecb-12420f868548}*SharedItemsImports = 5
 		submodules\BDotNetFramework\Utilities\ServiceUtilities_PubSub_DB_Users\ServiceUtilities_PubSub_DB_Users.projitems*{5771f05a-f7d2-4d11-aecb-12420f868548}*SharedItemsImports = 5
@@ -133,6 +151,7 @@ Global
 		submodules\BDotNetFramework\Utilities\ServiceUtilities_All\ServiceUtilities_All.projitems*{ced4e48f-9644-4dcf-a6a2-1d91eef01d87}*SharedItemsImports = 13
 		submodules\BDotNetFramework\Services\BServiceUtilities-DatabaseService-AWS\BServiceUtilities-DatabaseService-AWS.projitems*{d41edae0-59e2-4faf-9fda-b36c7b22ac60}*SharedItemsImports = 13
 		submodules\BDotNetFramework\Utilities\ServiceUtilities_PubSub_DB_Users\ServiceUtilities_PubSub_DB_Users.projitems*{f87b8c2b-ad95-4c42-8d8e-df69483a6139}*SharedItemsImports = 13
+		submodules\BDotNetFramework\Services\BServiceUtilities-FileService-AZ\BServiceUtilities-FileService-AZ.projitems*{ff2a7938-4b58-4925-bfe6-c3340a70ebb4}*SharedItemsImports = 13
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -239,6 +258,22 @@ Global
 		{3BB511F2-C98F-456F-82DC-E807793C1B82}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3BB511F2-C98F-456F-82DC-E807793C1B82}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3BB511F2-C98F-456F-82DC-E807793C1B82}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A280E925-CD3C-406E-8E5F-496D8E4B504B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A280E925-CD3C-406E-8E5F-496D8E4B504B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A280E925-CD3C-406E-8E5F-496D8E4B504B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A280E925-CD3C-406E-8E5F-496D8E4B504B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0BB779F6-2D8E-4030-84BB-3CBE8A46026B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0BB779F6-2D8E-4030-84BB-3CBE8A46026B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0BB779F6-2D8E-4030-84BB-3CBE8A46026B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0BB779F6-2D8E-4030-84BB-3CBE8A46026B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BD01A54F-6942-4457-B17A-5EDD55F5EA54}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BD01A54F-6942-4457-B17A-5EDD55F5EA54}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BD01A54F-6942-4457-B17A-5EDD55F5EA54}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BD01A54F-6942-4457-B17A-5EDD55F5EA54}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B0C8425A-AF54-4679-988F-9C4A095A33B3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B0C8425A-AF54-4679-988F-9C4A095A33B3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B0C8425A-AF54-4679-988F-9C4A095A33B3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B0C8425A-AF54-4679-988F-9C4A095A33B3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -291,6 +326,14 @@ Global
 		{CED4E48F-9644-4DCF-A6A2-1D91EEF01D87} = {8726A34D-587D-4544-8CF3-83870D9C9D74}
 		{F87B8C2B-AD95-4C42-8D8E-DF69483A6139} = {8726A34D-587D-4544-8CF3-83870D9C9D74}
 		{BECBE5E8-7D82-4EC0-996F-380D24E065F1} = {8726A34D-587D-4544-8CF3-83870D9C9D74}
+		{A280E925-CD3C-406E-8E5F-496D8E4B504B} = {8726A34D-587D-4544-8CF3-83870D9C9D74}
+		{0BB779F6-2D8E-4030-84BB-3CBE8A46026B} = {8726A34D-587D-4544-8CF3-83870D9C9D74}
+		{BD01A54F-6942-4457-B17A-5EDD55F5EA54} = {8726A34D-587D-4544-8CF3-83870D9C9D74}
+		{FF2A7938-4B58-4925-BFE6-C3340A70EBB4} = {8F14D646-45BA-46ED-A260-447D0DBEAC62}
+		{3801A9BF-F27F-4810-BF83-891492713381} = {8F14D646-45BA-46ED-A260-447D0DBEAC62}
+		{29B1DD26-FECE-4676-B6D6-745C60EF012F} = {8F14D646-45BA-46ED-A260-447D0DBEAC62}
+		{2EAD34EF-40E1-4FDD-B610-3B476C9F26B3} = {8F14D646-45BA-46ED-A260-447D0DBEAC62}
+		{B0C8425A-AF54-4679-988F-9C4A095A33B3} = {8726A34D-587D-4544-8CF3-83870D9C9D74}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {2D8F1337-AC30-4EA5-A064-08FF5A9C2AF5}

@@ -34,8 +34,20 @@ namespace AuthService
             if (!BServiceInitializer.Initialize(out BServiceInitializer ServInit,
                 new string[][]
                 {
-                    new string[] { "GOOGLE_CLOUD_PROJECT_ID" },
-                    new string[] { "GOOGLE_APPLICATION_CREDENTIALS", "GOOGLE_PLAIN_CREDENTIALS" },
+                    new string[] { "AZ_SUBSCRIPTION_ID" },
+                    new string[] { "AZ_TENANT_ID" },
+                    new string[] { "AZ_CLIENT_ID" },
+                    new string[] { "AZ_CLIENT_SECRET" },
+
+                    new string[] { "AZ_RESOURCE_GROUP_NAME" },
+                    new string[] { "AZ_RESOURCE_GROUP_LOCATION" },
+
+                    new string[] { "AZ_STORAGE_SERVICE_URL" },
+                    new string[] { "AZ_STORAGE_ACCOUNT_NAME" },
+                    new string[] { "AZ_STORAGE_ACCOUNT_ACCESS_KEY" },
+
+                    new string[] { "MONGODB_CONNECTION_STRING" },
+                    new string[] { "MONGODB_DATABASE" },
 
                     new string[] { "DEPLOYMENT_BRANCH_NAME" },
                     new string[] { "DEPLOYMENT_BUILD_NUMBER" },
@@ -59,7 +71,7 @@ namespace AuthService
                 }))
                 return;
             bool bInitSuccess = true;
-            bInitSuccess &= ServInit.WithTracingService();
+            //bInitSuccess &= ServInit.WithTracingService();
             bInitSuccess &= ServInit.WithDatabaseService();
             bInitSuccess &= ServInit.WithPubSubService();
             bInitSuccess &= ServInit.WithMemoryService();
@@ -151,7 +163,7 @@ namespace AuthService
                 new BWebPrefixStructure(new string[] { "/auth/users/*" }, () => new User_GetUpdateDeleteUser(ServInit.DatabaseService, ServInit.MemoryService, "users")),
                 new BWebPrefixStructure(new string[] { "/auth/users" }, () => new User_CreateListUsers(ServInit.DatabaseService))
             };
-            var BWebService = new BWebService(WebServiceEndpoints.ToArray(), ServInit.ServerPort, ServInit.TracingService);
+            var BWebService = new BWebService(WebServiceEndpoints.ToArray(), ServInit.ServerPort/*, ServInit.TracingService*/);
             BWebService.Run((string Message) =>
             {
                 ServInit.LoggingService.WriteLogs(BLoggingServiceMessageUtility.Single(EBLoggingServiceLogType.Info, Message), ServInit.ProgramID, "WebService");
