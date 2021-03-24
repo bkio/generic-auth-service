@@ -49,7 +49,8 @@ namespace AuthService
                     new string[] { "AZ_SERVICEBUS_NAMESPACE_ID" },
                     new string[] { "AZ_SERVICEBUS_NAMESPACE_CONNECTION_STRING" },
 
-                    new string[] { "MONGODB_CONNECTION_STRING" },
+                    new string[] { "MONGODB_CLIENT_CONFIG" },
+                    new string[] { "MONGODB_PASSWORD" },
                     new string[] { "MONGODB_DATABASE" },
 
                     new string[] { "DEPLOYMENT_BRANCH_NAME" },
