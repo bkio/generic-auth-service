@@ -6,10 +6,13 @@ RUN apk add --no-cache \
 
 ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT true
 
+ARG USER_ID=3232
+ARG GROUP_ID=5858
+
 WORKDIR /app
 
-RUN addgroup -S dotnetcoregroup && \     
-    adduser -S dotnetcoreuser dotnetcoregroup
+RUN addgroup -S -g ${GROUP_ID} dotnetcoregroup \
+ && adduser -D dotnetcoreuser -u ${USER_ID} -g dotnetcoreuser -G dotnetcoregroup -S /bin/sh -h /
 
 COPY --chown=dotnetcoregroup:dotnetcoreuser /app/out ./
 
