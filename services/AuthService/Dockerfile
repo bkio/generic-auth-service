@@ -7,7 +7,11 @@ RUN apk add --no-cache \
 ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT true
 
 WORKDIR /app
-COPY /app/out ./
+
+RUN addgroup -S dotnetcoregroup && \     
+    adduser -S dotnetcoreuser USER dotnetcoreuser
+
+COPY --chown=dotnetcoregroup:dotnetcoreuser /app/out ./
 
 EXPOSE 8080
 

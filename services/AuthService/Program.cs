@@ -21,9 +21,9 @@ namespace AuthService
         {
             Console.WriteLine("Initializing the service...");
 
-#if (Debug || DEBUG)
-            if (!ServicesDebugOnlyUtilities.CalledFromMain()) return;
-#endif
+//#if (Debug || DEBUG)
+//            if (!ServicesDebugOnlyUtilities.CalledFromMain()) return;
+//#endif
 
             // In case of a cloud component dependency or environment variable is added/removed;
             // Relative terraform script and microservice-dependency-map.cs must be updated as well.
