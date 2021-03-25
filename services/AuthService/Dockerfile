@@ -8,10 +8,9 @@ ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT true
 
 WORKDIR /app
 
-RUN addgroup -S -g 5858 dotnetcoregroup \
- && adduser -D dotnetcoreuser -u 3232 -g dotnetcoreuser -G dotnetcoregroup -S /bin/sh -h /
+COPY /app/out ./
 
-COPY --chown=dotnetcoregroup:dotnetcoreuser /app/out ./
+RUN chmod +x ./AuthService
 
 EXPOSE 8080
 
