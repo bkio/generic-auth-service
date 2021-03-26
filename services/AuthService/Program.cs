@@ -91,7 +91,6 @@ namespace AuthService
             };
             var InternalCallPrivateKey = ServInit.RequiredEnvironmentVariables["INTERNAL_CALL_PRIVATE_KEY"];
             CommonData.INTERNAL_CALL_PRIVATE_KEY = InternalCallPrivateKey;
-            Console.WriteLine(InternalCallPrivateKey);
 
             Controller_DeliveryEnsurer.Get().SetDatabaseService(ServInit.DatabaseService);
             Controller_DeliveryEnsurer.Get().SetServiceIdentifier("auth-service", Actions.EAction.ACTION_AUTH_SERVICE_DELIVERY_ENSURER);
