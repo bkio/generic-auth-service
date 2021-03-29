@@ -2,7 +2,7 @@
 
 RUN apk add --no-cache \ 
     openssl libunwind libc6-compat=1.1.24-r10 \
-    libstdc++ libintl zlib nghttp2-libs
+    curl libstdc++ libintl zlib nghttp2-libs
 
 ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT true
 
