@@ -24,6 +24,8 @@ namespace AuthService.Endpoints
 
         private readonly List<string> SSOSuperAdmins;
 
+        private readonly string ApiGatewayPublicUrl;
+
         public const string DEFAULT_TENANT_NAME = "default";
         public const string DEFAULT_REDIRECT_URL_ENCODED = "http%3A%2F%2Flocalhost%3A56789";
 
@@ -32,7 +34,8 @@ namespace AuthService.Endpoints
             IBMemoryServiceInterface _MemoryService, 
             string _AzureAD_AppID,
             string _AzureAD_ClientSecret,
-            List<string> _SSOSuperAdmins)
+            List<string> _SSOSuperAdmins,
+            string _ApiGatewayPublicUrl)
         {
             DatabaseService = _DatabaseService;
             MemoryService = _MemoryService;
@@ -41,6 +44,8 @@ namespace AuthService.Endpoints
             AzureAD_ClientSecret = _AzureAD_ClientSecret;
 
             SSOSuperAdmins = _SSOSuperAdmins;
+
+            ApiGatewayPublicUrl = _ApiGatewayPublicUrl;
         }
 
         protected override BWebServiceResponse OnRequestPP(HttpListenerContext Context, Action<string> _ErrorMessageAction = null)
@@ -119,22 +124,7 @@ namespace AuthService.Endpoints
                 return SSOCommon.MakeCallerRedirected(WebUtility.UrlDecode(RedirectUrlEncoded), false, 0, null, UserID, ClientAuthorization);
             }
 
-            //Get api passthrough endpoint from internal set state
-            var LocalErrorString = "";
-            if (!InternalSetState.GetValueFromMemoryService(
-                out string ApiPassthroughEndpoint, 
-                InternalSetState.API_PASSTHROUGH_PUBLIC_ENDPOINT_PROPERTY,
-                MemoryService,
-                (string _Message) =>
-                {
-                    LocalErrorString = _Message;
-                    _ErrorMessageAction?.Invoke(_Message);
-                }))
-            {
-                return SSOCommon.MakeCallerRedirected(WebUtility.UrlDecode(RedirectUrlEncoded), true, 500, LocalErrorString);
-            }
-
-            string ServersideRedirectUrl = WebUtility.UrlEncode(ApiPassthroughEndpoint + "/auth/login/azure/callback");
+            string ServersideRedirectUrl = WebUtility.UrlEncode(ApiGatewayPublicUrl + "/auth/login/azure/callback");
 
             string AzureAuthenticationEndpointBase =
                 "https://login.microsoftonline.com/common/oauth2/v2.0/authorize"
