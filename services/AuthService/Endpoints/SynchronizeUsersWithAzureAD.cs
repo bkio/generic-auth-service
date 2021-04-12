@@ -29,26 +29,21 @@ namespace AuthService.Endpoints
 
             private readonly List<string> SSOSuperAdmins;
 
-            private readonly string FetchUsersClientID;
-            private readonly string FetchUsersClientSecret;
-            private readonly string FetchUsersAppObjectID;
-
-            private readonly string OAuth2TokenRequestUrl;
+            private readonly string AzureAD_AppID;
+            private readonly string AzureAD_ClientSecret;
+            private readonly string AzureAD_AppObjectID;
 
             public SynchronizeUsersWithAzureAD(
                 string _InternalCallPrivateKey,
-                string _AzureOAuth2TokenRequestUrl,
-                string _AzureFetchUsersClientID, 
-                string _AzureFetchUsersClientSecret, 
-                string _AzureFetchUsersAppObjectID,
+                string _AzureAD_AppID, 
+                string _AzureAD_ClientSecret, 
+                string _AzureAD_AppObjectID,
                 IBDatabaseServiceInterface _DatabaseService,
                 List<string> _SSOSuperAdmins) : base(_InternalCallPrivateKey)
             {
-                FetchUsersClientID = _AzureFetchUsersClientID;
-                FetchUsersClientSecret = _AzureFetchUsersClientSecret;
-                FetchUsersAppObjectID = _AzureFetchUsersAppObjectID;
-
-                OAuth2TokenRequestUrl = _AzureOAuth2TokenRequestUrl;
+                AzureAD_AppID = _AzureAD_AppID;
+                AzureAD_ClientSecret = _AzureAD_ClientSecret;
+                AzureAD_AppObjectID = _AzureAD_AppObjectID;
 
                 DatabaseService = _DatabaseService;
 
@@ -130,10 +125,10 @@ namespace AuthService.Endpoints
 
                 var FormUrlEncodedPairs = new List<KeyValuePair<string, string>>()
                 {
-                    new KeyValuePair<string, string>("client_id", FetchUsersClientID),
+                    new KeyValuePair<string, string>("client_id", AzureAD_AppID),
                     new KeyValuePair<string, string>("scope", AuthScope),
                     new KeyValuePair<string, string>("grant_type", "client_credentials"),
-                    new KeyValuePair<string, string>("client_secret", FetchUsersClientSecret)
+                    new KeyValuePair<string, string>("client_secret", AzureAD_ClientSecret)
                 };
 
                 using var Handler = new HttpClientHandler
@@ -148,7 +143,7 @@ namespace AuthService.Endpoints
                 try
                 {
                     using var RequestContent = new FormUrlEncodedContent(FormUrlEncodedPairs);
-                    using var RequestTask = Client.PostAsync(OAuth2TokenRequestUrl, RequestContent);
+                    using var RequestTask = Client.PostAsync("https://login.microsoftonline.com/common/oauth2/v2.0/token", RequestContent);
                     RequestTask.Wait();
 
                     using var Response = RequestTask.Result;
@@ -210,7 +205,7 @@ namespace AuthService.Endpoints
                 string ResponseString = "";
                 try
                 {
-                    using var RequestTask = Client.GetAsync("https://graph.microsoft.com/v1.0/servicePrincipals/" + FetchUsersAppObjectID + "/appRoleAssignedTo");
+                    using var RequestTask = Client.GetAsync("https://graph.microsoft.com/v1.0/servicePrincipals/" + AzureAD_AppObjectID + "/appRoleAssignedTo");
                     RequestTask.Wait();
 
                     using var Response = RequestTask.Result;

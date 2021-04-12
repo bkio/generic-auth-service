@@ -63,10 +63,7 @@ namespace AuthService
                     new string[] { "SSO_SUPER_ADMINS" },
                     new string[] { "AZURE_AD_APP_ID" },
                     new string[] { "AZURE_AD_CLIENT_SECRET" },
-                    new string[] { "AZURE_AD_FETCH_USERS_CLIENT_ID" },
-                    new string[] { "AZURE_AD_FETCH_USERS_CLIENT_SECRET" },
-                    new string[] { "AZURE_AD_FETCH_USERS_APP_OBJECT_ID" },
-                    new string[] { "AZURE_OAUTH2_TOKEN_REQUEST_URL" },
+                    new string[] { "AZURE_AD_APP_OBJECT_ID" },
 
                     new string[] { "API_GATEWAY_PUBLIC_URL" },
 
@@ -118,6 +115,7 @@ namespace AuthService
 
             var AzureAD_AppID = ServInit.RequiredEnvironmentVariables["AZURE_AD_APP_ID"];
             var AzureAD_ClientSecret = ServInit.RequiredEnvironmentVariables["AZURE_AD_CLIENT_SECRET"];
+            var AzureAD_AppObjectID = ServInit.RequiredEnvironmentVariables["AZURE_AD_APP_OBJECT_ID"];
 
             var SSOSuperAdmins = new List<string>();
             var SAsJsonString = ServInit.RequiredEnvironmentVariables["SSO_SUPER_ADMINS"];
@@ -134,12 +132,6 @@ namespace AuthService
             }
             catch (Exception) { }
 
-            var AzureFetchUsersClientID = ServInit.RequiredEnvironmentVariables["AZURE_AD_FETCH_USERS_CLIENT_ID"];
-            var AzureFetchUsersClientSecret = ServInit.RequiredEnvironmentVariables["AZURE_AD_FETCH_USERS_CLIENT_SECRET"];
-            var AzureFetchUsersAppObjectID = ServInit.RequiredEnvironmentVariables["AZURE_AD_FETCH_USERS_APP_OBJECT_ID"];
-
-            var AzureOAuth2TokenRequestUrl = ServInit.RequiredEnvironmentVariables["AZURE_OAUTH2_TOKEN_REQUEST_URL"];
-
             var ApiGatewayPublicUrl = ServInit.RequiredEnvironmentVariables["API_GATEWAY_PUBLIC_URL"];
 
             /*
@@ -153,7 +145,7 @@ namespace AuthService
                 new BWebPrefixStructure(new string[] { "/auth/internal/set*" }, () => new InternalCalls.SetCall(InternalCallPrivateKey, ServInit.MemoryService)),
                 new BWebPrefixStructure(new string[] { "/auth/internal/create_test_user*" }, () => new InternalCalls.CreateTestUser(InternalCallPrivateKey, ServInit.DatabaseService, ServInit.ServerPort)),
                 new BWebPrefixStructure(new string[] { "/auth/internal/delete_test_user*" }, () => new InternalCalls.DeleteTestUser(InternalCallPrivateKey, ServInit.ServerPort)),
-                new BWebPrefixStructure(new string[] { "/auth/internal/synchronize_users_with_azure*" }, () => new InternalCalls.SynchronizeUsersWithAzureAD(InternalCallPrivateKey, AzureOAuth2TokenRequestUrl, AzureFetchUsersClientID, AzureFetchUsersClientSecret, AzureFetchUsersAppObjectID, ServInit.DatabaseService, SSOSuperAdmins)),
+                new BWebPrefixStructure(new string[] { "/auth/internal/synchronize_users_with_azure*" }, () => new InternalCalls.SynchronizeUsersWithAzureAD(InternalCallPrivateKey, AzureAD_AppID, AzureAD_ClientSecret, AzureAD_AppObjectID, ServInit.DatabaseService, SSOSuperAdmins)),
                 new BWebPrefixStructure(new string[] { "/auth/login/azure/token_refresh" }, () => new SSOAzureTokenRefreshRequest(ServInit.DatabaseService, ServInit.MemoryService, AzureAD_AppID, AzureAD_ClientSecret, SSOSuperAdmins)/*For token refresh requests via Azure AD SSO Service*/),
                 new BWebPrefixStructure(new string[] { "/auth/login/azure/*" }, () => new SSOAzureLoginCallback(ServInit.DatabaseService, ServInit.MemoryService, AzureAD_AppID, AzureAD_ClientSecret, SSOSuperAdmins)/*For auto-redirect from Azure AD SSO Service*/),
                 new BWebPrefixStructure(new string[] { "/auth/login/azure*" }, () => new SSOAzureLoginRequest(ServInit.DatabaseService, ServInit.MemoryService, AzureAD_AppID, AzureAD_ClientSecret, SSOSuperAdmins, ApiGatewayPublicUrl)/*For login request via Azure AD SSO Service*/),
