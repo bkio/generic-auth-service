@@ -61,9 +61,9 @@ namespace AuthService
                     new string[] { "REDIS_SSL_ENABLED" },
 
                     new string[] { "SSO_SUPER_ADMINS" },
-                    new string[] { "AZURE_AD_APP_ID" },
-                    new string[] { "AZURE_AD_CLIENT_SECRET" },
-                    new string[] { "AZURE_AD_APP_OBJECT_ID" },
+                    new string[] { "AZUREAD_APP_ID" },
+                    new string[] { "AZUREAD_CLIENT_SECRET" },
+                    new string[] { "AZUREAD_APP_OBJECT_ID" },
 
                     new string[] { "API_GATEWAY_PUBLIC_URL" },
 
@@ -113,9 +113,15 @@ namespace AuthService
             });
             InitializerThread.Start();
 
-            var AzureAD_AppID = ServInit.RequiredEnvironmentVariables["AZURE_AD_APP_ID"];
-            var AzureAD_ClientSecret = ServInit.RequiredEnvironmentVariables["AZURE_AD_CLIENT_SECRET"];
-            var AzureAD_AppObjectID = ServInit.RequiredEnvironmentVariables["AZURE_AD_APP_OBJECT_ID"];
+            var AzureAD_TenantID = "common";
+            if (ServInit.RequiredEnvironmentVariables.ContainsKey("AZ_TENANT_ID"))
+            {
+                AzureAD_TenantID = ServInit.RequiredEnvironmentVariables["AZ_TENANT_ID"];
+            }
+
+            var AzureAD_AppID = ServInit.RequiredEnvironmentVariables["AZUREAD_APP_ID"];
+            var AzureAD_ClientSecret = ServInit.RequiredEnvironmentVariables["AZUREAD_CLIENT_SECRET"];
+            var AzureAD_AppObjectID = ServInit.RequiredEnvironmentVariables["AZUREAD_APP_OBJECT_ID"];
 
             var SSOSuperAdmins = new List<string>();
             var SAsJsonString = ServInit.RequiredEnvironmentVariables["SSO_SUPER_ADMINS"];
@@ -145,12 +151,12 @@ namespace AuthService
                 new BWebPrefixStructure(new string[] { "/auth/internal/set*" }, () => new InternalCalls.SetCall(InternalCallPrivateKey, ServInit.MemoryService)),
                 new BWebPrefixStructure(new string[] { "/auth/internal/create_test_user*" }, () => new InternalCalls.CreateTestUser(InternalCallPrivateKey, ServInit.DatabaseService, ServInit.ServerPort)),
                 new BWebPrefixStructure(new string[] { "/auth/internal/delete_test_user*" }, () => new InternalCalls.DeleteTestUser(InternalCallPrivateKey, ServInit.ServerPort)),
-                new BWebPrefixStructure(new string[] { "/auth/internal/synchronize_users_with_azure*" }, () => new InternalCalls.SynchronizeUsersWithAzureAD(InternalCallPrivateKey, AzureAD_AppID, AzureAD_ClientSecret, AzureAD_AppObjectID, ServInit.DatabaseService, SSOSuperAdmins)),
-                new BWebPrefixStructure(new string[] { "/auth/login/azure/token_refresh" }, () => new SSOAzureTokenRefreshRequest(ServInit.DatabaseService, ServInit.MemoryService, AzureAD_AppID, AzureAD_ClientSecret, SSOSuperAdmins)/*For token refresh requests via Azure AD SSO Service*/),
-                new BWebPrefixStructure(new string[] { "/auth/login/azure/*" }, () => new SSOAzureLoginCallback(ServInit.DatabaseService, ServInit.MemoryService, AzureAD_AppID, AzureAD_ClientSecret, SSOSuperAdmins)/*For auto-redirect from Azure AD SSO Service*/),
-                new BWebPrefixStructure(new string[] { "/auth/login/azure*" }, () => new SSOAzureLoginRequest(ServInit.DatabaseService, ServInit.MemoryService, AzureAD_AppID, AzureAD_ClientSecret, SSOSuperAdmins, ApiGatewayPublicUrl)/*For login request via Azure AD SSO Service*/),
+                new BWebPrefixStructure(new string[] { "/auth/internal/synchronize_users_with_azure*" }, () => new InternalCalls.SynchronizeUsersWithAzureAD(InternalCallPrivateKey, AzureAD_TenantID, AzureAD_AppID, AzureAD_ClientSecret, AzureAD_AppObjectID, ServInit.DatabaseService, SSOSuperAdmins)),
+                new BWebPrefixStructure(new string[] { "/auth/login/azure/token_refresh" }, () => new SSOAzureTokenRefreshRequest(ServInit.DatabaseService, ServInit.MemoryService, AzureAD_TenantID, AzureAD_AppID, AzureAD_ClientSecret, SSOSuperAdmins)/*For token refresh requests via Azure AD SSO Service*/),
+                new BWebPrefixStructure(new string[] { "/auth/login/azure/*" }, () => new SSOAzureLoginCallback(ServInit.DatabaseService, ServInit.MemoryService, AzureAD_TenantID, AzureAD_AppID, AzureAD_ClientSecret, SSOSuperAdmins)/*For auto-redirect from Azure AD SSO Service*/),
+                new BWebPrefixStructure(new string[] { "/auth/login/azure*" }, () => new SSOAzureLoginRequest(ServInit.DatabaseService, ServInit.MemoryService, AzureAD_TenantID, AzureAD_AppID, AzureAD_ClientSecret, SSOSuperAdmins, ApiGatewayPublicUrl)/*For login request via Azure AD SSO Service*/),
                 new BWebPrefixStructure(new string[] { "/auth/login" }, () => new LoginRequest(ServInit.DatabaseService, ServInit.MemoryService)),
-                new BWebPrefixStructure(new string[] { "/auth/access_check" }, () => new AccessCheckRequest(ServInit.DatabaseService, ServInit.MemoryService, AzureAD_AppID, AzureAD_ClientSecret, SSOSuperAdmins)),
+                new BWebPrefixStructure(new string[] { "/auth/access_check" }, () => new AccessCheckRequest(ServInit.DatabaseService, ServInit.MemoryService, AzureAD_TenantID, AzureAD_AppID, AzureAD_ClientSecret, SSOSuperAdmins)),
                 new BWebPrefixStructure(new string[] { "/auth/list_registered_email_addresses" }, () => new ListRegisteredUserEmails(ServInit.DatabaseService)),
                 new BWebPrefixStructure(new string[] { "/auth/users/*/access_methods/*" }, () => new User_DeleteUserAccessMethod_ForUser(ServInit.DatabaseService, ServInit.MemoryService, "users", "access_methods")),
                 new BWebPrefixStructure(new string[] { "/auth/users/*/access_methods" }, () => new User_CreateListAccessMethods_ForUser(ServInit.DatabaseService, ServInit.MemoryService, "users")),

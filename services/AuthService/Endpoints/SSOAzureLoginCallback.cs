@@ -21,6 +21,7 @@ namespace AuthService.Endpoints
 {
     internal class SSOAzureLoginCallback : BppWebServiceBase
     {
+        private readonly string AzureAD_TenantID;
         private readonly string AzureAD_AppID;
         private readonly string AzureAD_ClientSecret;
 
@@ -32,6 +33,7 @@ namespace AuthService.Endpoints
         public SSOAzureLoginCallback(
             IBDatabaseServiceInterface _DatabaseService,
             IBMemoryServiceInterface _MemoryService,
+            string _AzureAD_TenantID,
             string _AzureAD_AppID,
             string _AzureAD_ClientSecret,
             List<string> _SSOSuperAdmins)
@@ -39,6 +41,7 @@ namespace AuthService.Endpoints
             DatabaseService = _DatabaseService;
             MemoryService = _MemoryService;
 
+            AzureAD_TenantID = _AzureAD_TenantID;
             AzureAD_AppID = _AzureAD_AppID;
             AzureAD_ClientSecret = _AzureAD_ClientSecret;
 
@@ -125,7 +128,7 @@ namespace AuthService.Endpoints
             //Like: Bearer [accessToken]
             var NewAuthorizationField = SuccessResponse.TokenType + (char)32 + SuccessResponse.AccessToken;
 
-            var AccessTokenManager = new Controller_SSOAccessToken(NewAuthorizationField, DatabaseService, MemoryService, AzureAD_AppID, AzureAD_ClientSecret, SSOSuperAdmins, _ErrorMessageAction);
+            var AccessTokenManager = new Controller_SSOAccessToken(NewAuthorizationField, DatabaseService, MemoryService, AzureAD_TenantID, AzureAD_AppID, AzureAD_ClientSecret, SSOSuperAdmins, _ErrorMessageAction);
             if (!AccessTokenManager.RegisterUser(out string _UserID, SuccessResponse.RefreshToken, SuccessResponse.ExpiresInSeconds))
             {
                 return SSOCommon.MakeCallerRedirected(LocalRedirectUrl_From_FirstLeg, true, 500, "User registration has failed.");
@@ -332,7 +335,7 @@ namespace AuthService.Endpoints
             try
             {
                 using var RequestContent = new FormUrlEncodedContent(FormUrlEncodedPairs);
-                using var RequestTask = Client.PostAsync("https://login.microsoftonline.com/common/oauth2/v2.0/token", RequestContent);
+                using var RequestTask = Client.PostAsync($"https://login.microsoftonline.com/{AzureAD_TenantID}/oauth2/v2.0/token", RequestContent);
                 RequestTask.Wait();
 
                 using var Response = RequestTask.Result;

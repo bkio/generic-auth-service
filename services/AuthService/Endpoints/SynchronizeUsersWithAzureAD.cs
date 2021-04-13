@@ -29,18 +29,21 @@ namespace AuthService.Endpoints
 
             private readonly List<string> SSOSuperAdmins;
 
+            private readonly string AzureAD_TenantID;
             private readonly string AzureAD_AppID;
             private readonly string AzureAD_ClientSecret;
             private readonly string AzureAD_AppObjectID;
 
             public SynchronizeUsersWithAzureAD(
                 string _InternalCallPrivateKey,
+                string _AzureAD_TenantID, 
                 string _AzureAD_AppID, 
                 string _AzureAD_ClientSecret, 
                 string _AzureAD_AppObjectID,
                 IBDatabaseServiceInterface _DatabaseService,
                 List<string> _SSOSuperAdmins) : base(_InternalCallPrivateKey)
             {
+                AzureAD_TenantID = _AzureAD_TenantID;
                 AzureAD_AppID = _AzureAD_AppID;
                 AzureAD_ClientSecret = _AzureAD_ClientSecret;
                 AzureAD_AppObjectID = _AzureAD_AppObjectID;
@@ -143,7 +146,7 @@ namespace AuthService.Endpoints
                 try
                 {
                     using var RequestContent = new FormUrlEncodedContent(FormUrlEncodedPairs);
-                    using var RequestTask = Client.PostAsync("https://login.microsoftonline.com/common/oauth2/v2.0/token", RequestContent);
+                    using var RequestTask = Client.PostAsync($"https://login.microsoftonline.com/{AzureAD_TenantID}/oauth2/v2.0/token", RequestContent);
                     RequestTask.Wait();
 
                     using var Response = RequestTask.Result;

@@ -20,6 +20,7 @@ namespace AuthService.Endpoints
 {
     internal class AccessCheckRequest : BppWebServiceBase
     {
+        private readonly string AzureAD_TenantID;
         private readonly string AzureAD_AppID;
         private readonly string AzureAD_ClientSecret;
 
@@ -31,6 +32,7 @@ namespace AuthService.Endpoints
         public AccessCheckRequest(
             IBDatabaseServiceInterface _DatabaseService,
             IBMemoryServiceInterface _MemoryService,
+            string _AzureAD_TenantID,
             string _AzureAD_AppID,
             string _AzureAD_ClientSecret,
             List<string> _SSOSuperAdmins)
@@ -38,6 +40,7 @@ namespace AuthService.Endpoints
             DatabaseService = _DatabaseService;
             MemoryService = _MemoryService;
 
+            AzureAD_TenantID = _AzureAD_TenantID;
             AzureAD_AppID = _AzureAD_AppID;
             AzureAD_ClientSecret = _AzureAD_ClientSecret;
 
@@ -145,7 +148,7 @@ namespace AuthService.Endpoints
             }
             else
             {
-                var AccessTokenManager = new Controller_SSOAccessToken(AccessTokenWithTokenType, DatabaseService, MemoryService, AzureAD_AppID, AzureAD_ClientSecret, SSOSuperAdmins, _ErrorMessageAction);
+                var AccessTokenManager = new Controller_SSOAccessToken(AccessTokenWithTokenType, DatabaseService, MemoryService, AzureAD_TenantID, AzureAD_AppID, AzureAD_ClientSecret, SSOSuperAdmins, _ErrorMessageAction);
                 if (AccessTokenManager.PerformCheckAndRefresh(
                     out SSOTokenRefreshStatus,
                     out AccessTokenWithTokenType,

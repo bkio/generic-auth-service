@@ -29,6 +29,7 @@ namespace AuthService.Endpoints.Controllers
         public readonly string AccessToken_TokenTypeSpacePrepended;
         private readonly string AccessToken_WithoutTokenType;
 
+        private readonly string AzureAD_TenantID;
         private readonly string AzureAD_AppID;
         private readonly string AzureAD_ClientSecret;
 
@@ -41,6 +42,7 @@ namespace AuthService.Endpoints.Controllers
             string _AccessToken_TokenTypeSpacePrepended,
             IBDatabaseServiceInterface _DatabaseService,
             IBMemoryServiceInterface _MemoryService,
+            string _AzureAD_TenantID,
             string _AzureAD_AppID,
             string _AzureAD_ClientSecret,
             List<string> _SSOSuperAdmins,
@@ -51,6 +53,7 @@ namespace AuthService.Endpoints.Controllers
             DatabaseService = _DatabaseService;
             MemoryService = _MemoryService;
 
+            AzureAD_TenantID = _AzureAD_TenantID;
             AzureAD_AppID = _AzureAD_AppID;
             AzureAD_ClientSecret = _AzureAD_ClientSecret;
 
@@ -273,7 +276,7 @@ namespace AuthService.Endpoints.Controllers
             try
             {
                 using var RequestContent = new FormUrlEncodedContent(FormUrlEncodedPairs);
-                using var RequestTask = Client.PostAsync("https://login.microsoftonline.com/common/oauth2/v2.0/token", RequestContent);
+                using var RequestTask = Client.PostAsync($"https://login.microsoftonline.com/{AzureAD_TenantID}/oauth2/v2.0/token", RequestContent);
                 RequestTask.Wait();
 
                 using var Response = RequestTask.Result;
@@ -296,6 +299,7 @@ namespace AuthService.Endpoints.Controllers
                     (string)Parsed["token_type"] + (char)32 + (string)Parsed["access_token"],
                     DatabaseService,
                     MemoryService,
+                    AzureAD_TenantID,
                     AzureAD_AppID,
                     AzureAD_ClientSecret,
                     SSOSuperAdmins,
