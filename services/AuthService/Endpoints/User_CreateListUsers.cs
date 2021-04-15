@@ -207,11 +207,10 @@ namespace AuthService
                     }
                 }
 
-                if (!Controller_Rights_Internal.Get().PerformGetRequestToGetGloballySharedModelIds(out List<string> GloballySharedModelIds, _ErrorMessageAction))
+                if (Controller_Rights_Internal.Get().PerformGetRequestToGetGloballySharedModelIds(out List<string> GloballySharedModelIds, _ErrorMessageAction))
                 {
-                    return BWebResponse.InternalError("Get-globally-shared-models operation failed.");
+                    NewUserObject.UserSharedModels = GloballySharedModelIds;
                 }
-                NewUserObject.UserSharedModels = GloballySharedModelIds;
 
                 if (!DatabaseService.UpdateItem(
                     UserDBEntry.DBSERVICE_USERS_TABLE(),

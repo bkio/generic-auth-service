@@ -45,10 +45,7 @@ namespace AuthService.Endpoints.Controllers
         {
             _Result = null;
 
-            if (!PerformGetRequestToGetGloballySharedModelIds(out List<string> GloballySharedModelIDs, _ErrorMessageAction))
-            {
-                return false;
-            }
+            PerformGetRequestToGetGloballySharedModelIds(out List<string> GloballySharedModelIDs, _ErrorMessageAction);
 
             _Result = new JArray()
             {
@@ -152,7 +149,7 @@ namespace AuthService.Endpoints.Controllers
             }
             catch (Exception e)
             {
-                _ErrorMessageAction?.Invoke("PerformGetRequestToGetGloballySharedModelIds: Error occured during reading response/parsing json: " + e.Message + ", trace: " + e.StackTrace + ", response content: " + ResponseContentAsString + ", response code: " + Result.ResponseCode);
+                _ErrorMessageAction?.Invoke("PerformGetRequestToGetGloballySharedModelIds: Error occurred during reading response/parsing json: " + e.Message + ", trace: " + e.StackTrace + ", response content: " + ResponseContentAsString + ", response code: " + Result.ResponseCode);
                 return false;
             }
             if (Result.ResponseCode >= 400)
