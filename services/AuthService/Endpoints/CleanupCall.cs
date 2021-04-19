@@ -106,7 +106,7 @@ namespace AuthService.Endpoints
                         {
                             DestinationServiceUrl = ApiGatewayPublicUrl + "/3d/models/internal/check_models_exist?secret=" + InternalCallPrivateKey,
                             RequestMethod = "POST",
-                            bWithAuthToken = true,
+                            bWithAuthToken = false,
                             UseContextHeaders = _Context,
                             ContentType = "application/json",
                             Content = new BStringOrStream(RequestObject.ToString()),

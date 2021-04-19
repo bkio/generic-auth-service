@@ -128,7 +128,7 @@ namespace AuthService.Endpoints.Controllers
             {
                 DestinationServiceUrl = ListGloballySharedModelIdsEndpoint,
                 RequestMethod = "GET",
-                bWithAuthToken = true
+                bWithAuthToken = false
                 //UseContext not needed since it's a call to an internal endpoint
             },
             false,

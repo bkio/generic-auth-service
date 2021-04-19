@@ -117,6 +117,8 @@ Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "BServiceUtilities-DatabaseS
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BWebServiceUtilities-Basic", "submodules\BDotNetFramework\Utilities\BWebServiceUtilities-Basic\BWebServiceUtilities-Basic.csproj", "{B0C8425A-AF54-4679-988F-9C4A095A33B3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BCloudServiceUtilities-BVMService-AZ", "submodules\BDotNetFramework\Utilities\BCloudServiceUtilities-BVMService-AZ\BCloudServiceUtilities-BVMService-AZ.csproj", "{4DA51EC1-D4A9-4B34-ADCB-A00D88202B0A}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		submodules\BDotNetFramework\Services\BServiceUtilities-FileService-GC\BServiceUtilities-FileService-GC.projitems*{05608816-c0da-479d-9ec5-36158a401110}*SharedItemsImports = 5
@@ -274,6 +276,10 @@ Global
 		{B0C8425A-AF54-4679-988F-9C4A095A33B3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B0C8425A-AF54-4679-988F-9C4A095A33B3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B0C8425A-AF54-4679-988F-9C4A095A33B3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4DA51EC1-D4A9-4B34-ADCB-A00D88202B0A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4DA51EC1-D4A9-4B34-ADCB-A00D88202B0A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4DA51EC1-D4A9-4B34-ADCB-A00D88202B0A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4DA51EC1-D4A9-4B34-ADCB-A00D88202B0A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -334,6 +340,7 @@ Global
 		{29B1DD26-FECE-4676-B6D6-745C60EF012F} = {8F14D646-45BA-46ED-A260-447D0DBEAC62}
 		{2EAD34EF-40E1-4FDD-B610-3B476C9F26B3} = {8F14D646-45BA-46ED-A260-447D0DBEAC62}
 		{B0C8425A-AF54-4679-988F-9C4A095A33B3} = {8726A34D-587D-4544-8CF3-83870D9C9D74}
+		{4DA51EC1-D4A9-4B34-ADCB-A00D88202B0A} = {8726A34D-587D-4544-8CF3-83870D9C9D74}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {2D8F1337-AC30-4EA5-A064-08FF5A9C2AF5}
