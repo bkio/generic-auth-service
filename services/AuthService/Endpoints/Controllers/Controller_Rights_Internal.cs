@@ -111,18 +111,18 @@ namespace AuthService.Endpoints.Controllers
 
             //Get cad file service endpoint from internal set state
             if (!InternalSetState.GetValueFromMemoryService(
-                out string CADFileServiceEndpoint,
-                InternalSetState.CAD_FILE_SERVICE_ENDPOINT_PROPERTY,
+                out string ApiGatewayPublicUrl,
+                InternalSetState.API_GATEWAY_PUBLIC_URL_PROPERTY,
                 MemoryService,
                 (string _Message) =>
                 {
-                    _ErrorMessageAction?.Invoke("PerformGetRequestToGetGloballySharedModelIds: " + _Message);
+                    _ErrorMessageAction?.Invoke("PerformGetRequestToGetGloballySharedModelIds: Error occurred during reading API Gateway Public URL from memory service: " + _Message);
                 }))
             {
                 return false;
             }
 
-            var ListGloballySharedModelIdsEndpoint = CADFileServiceEndpoint + "/3d/models/internal/globally_shared_models?secret=" + CommonData.INTERNAL_CALL_PRIVATE_KEY;
+            var ListGloballySharedModelIdsEndpoint = ApiGatewayPublicUrl + "/3d/models/internal/globally_shared_models?secret=" + CommonData.INTERNAL_CALL_PRIVATE_KEY;
 
             var Result = BWebServiceExtraUtilities.InterServicesRequest(new BWebServiceExtraUtilities.InterServicesRequestRequest()
             {

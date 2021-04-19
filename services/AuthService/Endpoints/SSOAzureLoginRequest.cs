@@ -25,8 +25,6 @@ namespace AuthService.Endpoints
 
         private readonly List<string> SSOSuperAdmins;
 
-        private readonly string ApiGatewayPublicUrl;
-
         public const string DEFAULT_TENANT_NAME = "default";
         public const string DEFAULT_REDIRECT_URL_ENCODED = "http%3A%2F%2Flocalhost%3A56789";
 
@@ -36,8 +34,7 @@ namespace AuthService.Endpoints
             string _AzureAD_TenantID,
             string _AzureAD_AppID,
             string _AzureAD_ClientSecret,
-            List<string> _SSOSuperAdmins,
-            string _ApiGatewayPublicUrl)
+            List<string> _SSOSuperAdmins)
         {
             DatabaseService = _DatabaseService;
             MemoryService = _MemoryService;
@@ -47,8 +44,6 @@ namespace AuthService.Endpoints
             AzureAD_ClientSecret = _AzureAD_ClientSecret;
 
             SSOSuperAdmins = _SSOSuperAdmins;
-
-            ApiGatewayPublicUrl = _ApiGatewayPublicUrl;
         }
 
         protected override BWebServiceResponse OnRequestPP(HttpListenerContext Context, Action<string> _ErrorMessageAction = null)
@@ -127,6 +122,18 @@ namespace AuthService.Endpoints
                 return SSOCommon.MakeCallerRedirected(WebUtility.UrlDecode(RedirectUrlEncoded), false, 0, null, UserID, ClientAuthorization);
             }
 
+            if (!InternalSetState.GetValueFromMemoryService(
+                    out string ApiGatewayPublicUrl,
+                    InternalSetState.API_GATEWAY_PUBLIC_URL_PROPERTY,
+                    MemoryService,
+                    (string _Message) =>
+                    {
+                        _ErrorMessageAction?.Invoke("SSOLoginRequest: Unable to get ApiGatewayPublicUrl: " + _Message);
+                    }))
+            {
+                return SSOCommon.MakeCallerRedirected(WebUtility.UrlDecode(RedirectUrlEncoded), true, BWebResponse.Error_InternalError_Code, "ApiGatewayPublicUrl accessing has failed.");
+            }
+
             string ServersideRedirectUrl = WebUtility.UrlEncode(ApiGatewayPublicUrl + "/auth/login/azure/callback");
 
             string AzureAuthenticationEndpointBase =
@@ -142,7 +149,7 @@ namespace AuthService.Endpoints
             {
                 if (!BUtility.CalculateStringMD5(BUtility.RandomString(32, true), out SSOStateUniqueID, _ErrorMessageAction))
                 {
-                    return SSOCommon.MakeCallerRedirected(WebUtility.UrlDecode(RedirectUrlEncoded), true, 500, "SSO State ID generation has failed.");
+                    return SSOCommon.MakeCallerRedirected(WebUtility.UrlDecode(RedirectUrlEncoded), true, BWebResponse.Error_InternalError_Code, "SSO State ID generation has failed.");
                 }
 
                 SSOStateUniqueID_QueryParameters = SSOStateMEntry.ID_SSO_STATE_MEMORY_SERVICE_KEY(SSOStateUniqueID);
@@ -169,7 +176,7 @@ namespace AuthService.Endpoints
             
             if (SSOStateUniqueID == null)
             {
-                return SSOCommon.MakeCallerRedirected(WebUtility.UrlDecode(RedirectUrlEncoded), true, 500, "Unique SSO State ID generation has failed.");
+                return SSOCommon.MakeCallerRedirected(WebUtility.UrlDecode(RedirectUrlEncoded), true, BWebResponse.Error_InternalError_Code, "Unique SSO State ID generation has failed.");
             }
             MemoryService.SetKeyExpireTime(SSOStateUniqueID_QueryParameters, TimeSpan.FromSeconds(120), _ErrorMessageAction);
     

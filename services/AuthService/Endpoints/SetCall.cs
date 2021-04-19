@@ -24,8 +24,7 @@ namespace AuthService.Endpoints
 
             protected override BWebServiceResponse Process(HttpListenerContext _Context, Action<string> _ErrorMessageAction = null)
             {
-                string ApiPassthroughPublicEndpoint = null;
-                string CADFileServiceEndpoint = null;
+                string ApiGatewayPublicUrl = null;
 
                 if (_Context.Request.HttpMethod != "POST")
                 {
@@ -50,8 +49,7 @@ namespace AuthService.Endpoints
                     }
                 }
 
-                if (!ParsedBody.ContainsKey(InternalSetState.API_PASSTHROUGH_PUBLIC_ENDPOINT_PROPERTY) 
-                    && !ParsedBody.ContainsKey(InternalSetState.CAD_FILE_SERVICE_ENDPOINT_PROPERTY))
+                if (!ParsedBody.ContainsKey(InternalSetState.API_GATEWAY_PUBLIC_URL_PROPERTY))
                 {
                     _ErrorMessageAction?.Invoke("SetCallRequest-> Request does not have required fields.");
                     return BWebResponse.BadRequest("Request does not have required fields.");
@@ -59,18 +57,10 @@ namespace AuthService.Endpoints
 
                 var LocalErrorMessage = "";
 
-                if (ParsedBody.ContainsKey(InternalSetState.API_PASSTHROUGH_PUBLIC_ENDPOINT_PROPERTY))
+                if (ParsedBody.ContainsKey(InternalSetState.API_GATEWAY_PUBLIC_URL_PROPERTY))
                 {
-                    ApiPassthroughPublicEndpoint = (string)ParsedBody[InternalSetState.API_PASSTHROUGH_PUBLIC_ENDPOINT_PROPERTY];
-                    if (!Process_SetApiPassthroughPublicEndpoint((string _Message) => { LocalErrorMessage = _Message; }, ApiPassthroughPublicEndpoint))
-                    {
-                        return BWebResponse.InternalError(LocalErrorMessage);
-                    }
-                }
-                if (ParsedBody.ContainsKey(InternalSetState.CAD_FILE_SERVICE_ENDPOINT_PROPERTY))
-                {
-                    CADFileServiceEndpoint = (string)ParsedBody[InternalSetState.CAD_FILE_SERVICE_ENDPOINT_PROPERTY];
-                    if (!Process_SetCADFileServicePublicEndpoint((string _Message) => { LocalErrorMessage = _Message; }, CADFileServiceEndpoint))
+                    ApiGatewayPublicUrl = (string)ParsedBody[InternalSetState.API_GATEWAY_PUBLIC_URL_PROPERTY];
+                    if (!Process_SetApiGatewayPublicUrl(ApiGatewayPublicUrl, (string _Message) => { LocalErrorMessage = _Message; }))
                     {
                         return BWebResponse.InternalError(LocalErrorMessage);
                     }
@@ -79,20 +69,11 @@ namespace AuthService.Endpoints
                 return BWebResponse.StatusOK("Ok.");
             }
 
-            public bool Process_SetApiPassthroughPublicEndpoint(Action<string> _ErrorMessageAction, string _ApiPassthroughPublicEndpoint)
+            public bool Process_SetApiGatewayPublicUrl(string _ApiGatewayPublicUrl, Action<string> _ErrorMessageAction)
             {
                 return InternalSetState.SetValueToMemoryService(
-                       InternalSetState.API_PASSTHROUGH_PUBLIC_ENDPOINT_PROPERTY,
-                       _ApiPassthroughPublicEndpoint,
-                       MemoryService,
-                       _ErrorMessageAction);
-            }
-
-            public bool Process_SetCADFileServicePublicEndpoint(Action<string> _ErrorMessageAction, string _CADFileServiceEndpoint)
-            {
-                return InternalSetState.SetValueToMemoryService(
-                       InternalSetState.CAD_FILE_SERVICE_ENDPOINT_PROPERTY,
-                       _CADFileServiceEndpoint,
+                       InternalSetState.API_GATEWAY_PUBLIC_URL_PROPERTY,
+                       _ApiGatewayPublicUrl,
                        MemoryService,
                        _ErrorMessageAction);
             }

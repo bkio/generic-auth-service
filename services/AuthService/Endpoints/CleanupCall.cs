@@ -52,14 +52,13 @@ namespace AuthService.Endpoints
                     return;
                 }
 
-                //Get cad file service endpoint from internal set state
                 if (!InternalSetState.GetValueFromMemoryService(
-                    out string CADFileServiceEndpoint,
-                    InternalSetState.CAD_FILE_SERVICE_ENDPOINT_PROPERTY,
+                    out string ApiGatewayPublicUrl,
+                    InternalSetState.API_GATEWAY_PUBLIC_URL_PROPERTY,
                     MemoryService,
                     (string _Message) =>
                     {
-                        _ErrorMessageAction?.Invoke("Cleanup_UserModels: Unable to get CadFileServiceEndpoint: " + _Message);
+                        _ErrorMessageAction?.Invoke("Cleanup_UserModels: Unable to get ApiGatewayPublicUrl: " + _Message);
                     }))
                 {
                     return;
@@ -105,7 +104,7 @@ namespace AuthService.Endpoints
 
                         var Result = BWebServiceExtraUtilities.InterServicesRequest(new BWebServiceExtraUtilities.InterServicesRequestRequest()
                         {
-                            DestinationServiceUrl = CADFileServiceEndpoint + "/3d/models/internal/check_models_exist?secret=" + InternalCallPrivateKey,
+                            DestinationServiceUrl = ApiGatewayPublicUrl + "/3d/models/internal/check_models_exist?secret=" + InternalCallPrivateKey,
                             RequestMethod = "POST",
                             bWithAuthToken = true,
                             UseContextHeaders = _Context,

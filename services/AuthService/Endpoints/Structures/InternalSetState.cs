@@ -20,14 +20,10 @@ namespace AuthService.Endpoints.Structures
 
         public const string HASH_KEY = "internal";
 
-        public const string API_PASSTHROUGH_PUBLIC_ENDPOINT_PROPERTY = "passthroughPublicEndpoint";
-        public const string CAD_FILE_SERVICE_ENDPOINT_PROPERTY = "cadFileServiceEndpoint";
+        public const string API_GATEWAY_PUBLIC_URL_PROPERTY = "gatewayPublicUrl";
 
-        [JsonProperty(API_PASSTHROUGH_PUBLIC_ENDPOINT_PROPERTY)]
-        public string ApiPassThroughPublicEndpoint = "";
-
-        [JsonProperty(CAD_FILE_SERVICE_ENDPOINT_PROPERTY)]
-        public string CADFileServiceEndpoint = "";
+        [JsonProperty(API_GATEWAY_PUBLIC_URL_PROPERTY)]
+        public string ApiGatewayPublicUrl = "";
 
         private static readonly Dictionary<string, string> CachedPropertiesAfterFirstGet = new Dictionary<string, string>();
 

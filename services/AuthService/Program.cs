@@ -141,6 +141,11 @@ namespace AuthService
             catch (Exception) { }
 
             var ApiGatewayPublicUrl = ServInit.RequiredEnvironmentVariables["API_GATEWAY_PUBLIC_URL"];
+            new InternalCalls.SetCall(InternalCallPrivateKey, ServInit.MemoryService).Process_SetApiGatewayPublicUrl(ApiGatewayPublicUrl,
+                    (string Message) =>
+                    {
+                        ServInit.LoggingService.WriteLogs(BLoggingServiceMessageUtility.Single(EBLoggingServiceLogType.Error, Message), ServInit.ProgramID, "WebService");
+                    });
 
             /*
             * Web-http service initialization
@@ -156,7 +161,7 @@ namespace AuthService
                 new BWebPrefixStructure(new string[] { "/auth/internal/synchronize_users_with_azure*" }, () => new InternalCalls.SynchronizeUsersWithAzureAD(InternalCallPrivateKey, AzureAD_TenantID, AzureAD_AppID, AzureAD_ClientSecret, AzureAD_AppObjectID, ServInit.DatabaseService, SSOSuperAdmins)),
                 new BWebPrefixStructure(new string[] { "/auth/login/azure/token_refresh" }, () => new SSOAzureTokenRefreshRequest(ServInit.DatabaseService, ServInit.MemoryService, AzureAD_TenantID, AzureAD_AppID, AzureAD_ClientSecret, SSOSuperAdmins)/*For token refresh requests via Azure AD SSO Service*/),
                 new BWebPrefixStructure(new string[] { "/auth/login/azure/*" }, () => new SSOAzureLoginCallback(ServInit.DatabaseService, ServInit.MemoryService, AzureAD_TenantID, AzureAD_AppID, AzureAD_ClientSecret, SSOSuperAdmins)/*For auto-redirect from Azure AD SSO Service*/),
-                new BWebPrefixStructure(new string[] { "/auth/login/azure*" }, () => new SSOAzureLoginRequest(ServInit.DatabaseService, ServInit.MemoryService, AzureAD_TenantID, AzureAD_AppID, AzureAD_ClientSecret, SSOSuperAdmins, ApiGatewayPublicUrl)/*For login request via Azure AD SSO Service*/),
+                new BWebPrefixStructure(new string[] { "/auth/login/azure*" }, () => new SSOAzureLoginRequest(ServInit.DatabaseService, ServInit.MemoryService, AzureAD_TenantID, AzureAD_AppID, AzureAD_ClientSecret, SSOSuperAdmins)/*For login request via Azure AD SSO Service*/),
                 new BWebPrefixStructure(new string[] { "/auth/login" }, () => new LoginRequest(ServInit.DatabaseService, ServInit.MemoryService)),
                 new BWebPrefixStructure(new string[] { "/auth/access_check" }, () => new AccessCheckRequest(ServInit.DatabaseService, ServInit.MemoryService, AzureAD_TenantID, AzureAD_AppID, AzureAD_ClientSecret, SSOSuperAdmins)),
                 new BWebPrefixStructure(new string[] { "/auth/list_registered_email_addresses" }, () => new ListRegisteredUserEmails(ServInit.DatabaseService)),
@@ -172,27 +177,6 @@ namespace AuthService
             {
                 ServInit.LoggingService.WriteLogs(BLoggingServiceMessageUtility.Single(EBLoggingServiceLogType.Info, Message), ServInit.ProgramID, "WebService");
             });
-
-            var ApiPassThroughEndpoint = Environment.GetEnvironmentVariable("API_PASSTHROUGH_ENDPOINT");
-            if (ApiPassThroughEndpoint != null)
-            {
-                //Needed by MicroserviceLocalRunner
-                new InternalCalls.SetCall(InternalCallPrivateKey, ServInit.MemoryService).Process_SetApiPassthroughPublicEndpoint(
-                    (string Message) =>
-                    {
-                        ServInit.LoggingService.WriteLogs(BLoggingServiceMessageUtility.Single(EBLoggingServiceLogType.Error, Message), ServInit.ProgramID, "WebService");
-                    }, ApiPassThroughEndpoint);
-            }
-            var CadFileServiceEndpoint = Environment.GetEnvironmentVariable("CAD_FILE_SERVICE_ENDPOINT");
-            if (CadFileServiceEndpoint != null)
-            {
-                //Needed by MicroserviceLocalRunner
-                new InternalCalls.SetCall(InternalCallPrivateKey, ServInit.MemoryService).Process_SetCADFileServicePublicEndpoint(
-                    (string Message) =>
-                    {
-                        ServInit.LoggingService.WriteLogs(BLoggingServiceMessageUtility.Single(EBLoggingServiceLogType.Error, Message), ServInit.ProgramID, "WebService");
-                    }, CadFileServiceEndpoint);
-            }
 
             /*
             * Make main thread sleep forever
