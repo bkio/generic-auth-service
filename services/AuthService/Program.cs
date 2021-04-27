@@ -147,30 +147,36 @@ namespace AuthService
                         ServInit.LoggingService.WriteLogs(BLoggingServiceMessageUtility.Single(EBLoggingServiceLogType.Error, Message), ServInit.ProgramID, "WebService");
                     });
 
+            var RootPath = "/";
+            if (ServInit.RequiredEnvironmentVariables["DEPLOYMENT_BRANCH_NAME"] != "master" && ServInit.RequiredEnvironmentVariables["DEPLOYMENT_BRANCH_NAME"] != "development")
+            {
+                RootPath = "/" + ServInit.RequiredEnvironmentVariables["DEPLOYMENT_BRANCH_NAME"] + "/";
+            }
+
             /*
             * Web-http service initialization
             */
             var WebServiceEndpoints = new List<BWebPrefixStructure>()
             {
-                new BWebPrefixStructure(new string[] { "/auth/internal/pubsub*" }, () => new InternalCalls.PubSub_To_AuthService(InternalCallPrivateKey, ServInit.DatabaseService)),
-                new BWebPrefixStructure(new string[] { "/auth/internal/cleanup*" }, () => new InternalCalls.CleanupCall(InternalCallPrivateKey, ServInit.DatabaseService, ServInit.MemoryService)),
-                new BWebPrefixStructure(new string[] { "/auth/internal/fetch_user_ids_from_emails*" }, () => new InternalCalls.FetchUserIDsFromEmailsRequest(InternalCallPrivateKey, ServInit.DatabaseService)),
-                new BWebPrefixStructure(new string[] { "/auth/internal/set*" }, () => new InternalCalls.SetCall(InternalCallPrivateKey, ServInit.MemoryService)),
-                new BWebPrefixStructure(new string[] { "/auth/internal/create_test_user*" }, () => new InternalCalls.CreateTestUser(InternalCallPrivateKey, ServInit.DatabaseService, ServInit.ServerPort)),
-                new BWebPrefixStructure(new string[] { "/auth/internal/delete_test_user*" }, () => new InternalCalls.DeleteTestUser(InternalCallPrivateKey, ServInit.ServerPort)),
-                new BWebPrefixStructure(new string[] { "/auth/internal/synchronize_users_with_azure*" }, () => new InternalCalls.SynchronizeUsersWithAzureAD(InternalCallPrivateKey, AzureAD_TenantID, AzureAD_AppID, AzureAD_ClientSecret, AzureAD_AppObjectID, ServInit.DatabaseService, SSOSuperAdmins)),
-                new BWebPrefixStructure(new string[] { "/auth/login/azure/token_refresh" }, () => new SSOAzureTokenRefreshRequest(ServInit.DatabaseService, ServInit.MemoryService, AzureAD_TenantID, AzureAD_AppID, AzureAD_ClientSecret, SSOSuperAdmins)/*For token refresh requests via Azure AD SSO Service*/),
-                new BWebPrefixStructure(new string[] { "/auth/login/azure/*" }, () => new SSOAzureLoginCallback(ServInit.DatabaseService, ServInit.MemoryService, AzureAD_TenantID, AzureAD_AppID, AzureAD_ClientSecret, SSOSuperAdmins)/*For auto-redirect from Azure AD SSO Service*/),
-                new BWebPrefixStructure(new string[] { "/auth/login/azure*" }, () => new SSOAzureLoginRequest(ServInit.DatabaseService, ServInit.MemoryService, AzureAD_TenantID, AzureAD_AppID, AzureAD_ClientSecret, SSOSuperAdmins)/*For login request via Azure AD SSO Service*/),
-                new BWebPrefixStructure(new string[] { "/auth/login" }, () => new LoginRequest(ServInit.DatabaseService, ServInit.MemoryService)),
-                new BWebPrefixStructure(new string[] { "/auth/access_check" }, () => new AccessCheckRequest(ServInit.DatabaseService, ServInit.MemoryService, AzureAD_TenantID, AzureAD_AppID, AzureAD_ClientSecret, SSOSuperAdmins)),
-                new BWebPrefixStructure(new string[] { "/auth/list_registered_email_addresses" }, () => new ListRegisteredUserEmails(ServInit.DatabaseService)),
-                new BWebPrefixStructure(new string[] { "/auth/users/*/access_methods/*" }, () => new User_DeleteUserAccessMethod_ForUser(ServInit.DatabaseService, ServInit.MemoryService, "users", "access_methods")),
-                new BWebPrefixStructure(new string[] { "/auth/users/*/access_methods" }, () => new User_CreateListAccessMethods_ForUser(ServInit.DatabaseService, ServInit.MemoryService, "users")),
-                new BWebPrefixStructure(new string[] { "/auth/users/*/base_access_rights/*" }, () => new User_UpdateDeleteBaseRight_ForUser(ServInit.DatabaseService, ServInit.MemoryService, "users", "base_access_rights")),
-                new BWebPrefixStructure(new string[] { "/auth/users/*/base_access_rights" }, () => new User_AddListBaseRights_ForUser(ServInit.DatabaseService, ServInit.MemoryService, "users")),
-                new BWebPrefixStructure(new string[] { "/auth/users/*" }, () => new User_GetUpdateDeleteUser(ServInit.DatabaseService, ServInit.MemoryService, "users")),
-                new BWebPrefixStructure(new string[] { "/auth/users" }, () => new User_CreateListUsers(ServInit.DatabaseService))
+                new BWebPrefixStructure(new string[] { RootPath + "auth/internal/pubsub*" }, () => new InternalCalls.PubSub_To_AuthService(InternalCallPrivateKey, ServInit.DatabaseService)),
+                new BWebPrefixStructure(new string[] { RootPath + "auth/internal/cleanup*" }, () => new InternalCalls.CleanupCall(InternalCallPrivateKey, ServInit.DatabaseService, ServInit.MemoryService)),
+                new BWebPrefixStructure(new string[] { RootPath + "auth/internal/fetch_user_ids_from_emails*" }, () => new InternalCalls.FetchUserIDsFromEmailsRequest(InternalCallPrivateKey, ServInit.DatabaseService)),
+                new BWebPrefixStructure(new string[] { RootPath + "auth/internal/set*" }, () => new InternalCalls.SetCall(InternalCallPrivateKey, ServInit.MemoryService)),
+                new BWebPrefixStructure(new string[] { RootPath + "auth/internal/create_test_user*" }, () => new InternalCalls.CreateTestUser(InternalCallPrivateKey, ServInit.DatabaseService, ServInit.ServerPort)),
+                new BWebPrefixStructure(new string[] { RootPath + "auth/internal/delete_test_user*" }, () => new InternalCalls.DeleteTestUser(InternalCallPrivateKey, ServInit.ServerPort)),
+                new BWebPrefixStructure(new string[] { RootPath + "auth/internal/synchronize_users_with_azure*" }, () => new InternalCalls.SynchronizeUsersWithAzureAD(InternalCallPrivateKey, AzureAD_TenantID, AzureAD_AppID, AzureAD_ClientSecret, AzureAD_AppObjectID, ServInit.DatabaseService, SSOSuperAdmins)),
+                new BWebPrefixStructure(new string[] { RootPath + "auth/login/azure/token_refresh" }, () => new SSOAzureTokenRefreshRequest(ServInit.DatabaseService, ServInit.MemoryService, AzureAD_TenantID, AzureAD_AppID, AzureAD_ClientSecret, SSOSuperAdmins)/*For token refresh requests via Azure AD SSO Service*/),
+                new BWebPrefixStructure(new string[] { RootPath + "auth/login/azure/*" }, () => new SSOAzureLoginCallback(ServInit.DatabaseService, ServInit.MemoryService, AzureAD_TenantID, AzureAD_AppID, AzureAD_ClientSecret, SSOSuperAdmins)/*For auto-redirect from Azure AD SSO Service*/),
+                new BWebPrefixStructure(new string[] { RootPath + "auth/login/azure*" }, () => new SSOAzureLoginRequest(ServInit.DatabaseService, ServInit.MemoryService, AzureAD_TenantID, AzureAD_AppID, AzureAD_ClientSecret, SSOSuperAdmins)/*For login request via Azure AD SSO Service*/),
+                new BWebPrefixStructure(new string[] { RootPath + "auth/login" }, () => new LoginRequest(ServInit.DatabaseService, ServInit.MemoryService)),
+                new BWebPrefixStructure(new string[] { RootPath + "auth/access_check" }, () => new AccessCheckRequest(ServInit.DatabaseService, ServInit.MemoryService, AzureAD_TenantID, AzureAD_AppID, AzureAD_ClientSecret, SSOSuperAdmins)),
+                new BWebPrefixStructure(new string[] { RootPath + "auth/list_registered_email_addresses" }, () => new ListRegisteredUserEmails(ServInit.DatabaseService)),
+                new BWebPrefixStructure(new string[] { RootPath + "auth/users/*/access_methods/*" }, () => new User_DeleteUserAccessMethod_ForUser(ServInit.DatabaseService, ServInit.MemoryService, "users", "access_methods")),
+                new BWebPrefixStructure(new string[] { RootPath + "auth/users/*/access_methods" }, () => new User_CreateListAccessMethods_ForUser(ServInit.DatabaseService, ServInit.MemoryService, "users")),
+                new BWebPrefixStructure(new string[] { RootPath + "auth/users/*/base_access_rights/*" }, () => new User_UpdateDeleteBaseRight_ForUser(ServInit.DatabaseService, ServInit.MemoryService, "users", "base_access_rights")),
+                new BWebPrefixStructure(new string[] { RootPath + "auth/users/*/base_access_rights" }, () => new User_AddListBaseRights_ForUser(ServInit.DatabaseService, ServInit.MemoryService, "users")),
+                new BWebPrefixStructure(new string[] { RootPath + "auth/users/*" }, () => new User_GetUpdateDeleteUser(ServInit.DatabaseService, ServInit.MemoryService, "users")),
+                new BWebPrefixStructure(new string[] { RootPath + "auth/users" }, () => new User_CreateListUsers(ServInit.DatabaseService))
             };
             var BWebService = new BWebService(WebServiceEndpoints.ToArray(), ServInit.ServerPort/*, ServInit.TracingService*/);
             BWebService.Run((string Message) =>
