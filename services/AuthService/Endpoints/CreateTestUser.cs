@@ -23,18 +23,15 @@ namespace AuthService.Endpoints
         internal class CreateTestUser : InternalWebServiceBaseTimeoutable
         {
             private readonly IBDatabaseServiceInterface DatabaseService;
+            private readonly int LocalServerPort;
+            private readonly string RootPath;
 
-            public CreateTestUser(string _InternalCallPrivateKey, IBDatabaseServiceInterface _DatabaseService, int _ServerPort) : base(_InternalCallPrivateKey)
+            public CreateTestUser(string _InternalCallPrivateKey, IBDatabaseServiceInterface _DatabaseService, int _LocalServerPort, string _RootPath) : base(_InternalCallPrivateKey)
             {
                 DatabaseService = _DatabaseService;
-                SetLocalServerPort(_ServerPort);
+                LocalServerPort = _LocalServerPort;
+                RootPath = _RootPath;
             }
-
-            public static void SetLocalServerPort(int _Port)
-            {
-                LocalServerPort = _Port;
-            }
-            private static int LocalServerPort;
 
             public override BWebServiceResponse OnRequest_Interruptable(HttpListenerContext _Context, Action<string> _ErrorMessageAction = null)
             {
@@ -89,7 +86,7 @@ namespace AuthService.Endpoints
             {
                 _UserID = null;
 
-                var Endpoint = "http://localhost:" + LocalServerPort + "/auth/users";
+                var Endpoint = "http://localhost:" + LocalServerPort + RootPath + "auth/users";
 
                 using var Handler = new HttpClientHandler
                 {
@@ -164,7 +161,7 @@ namespace AuthService.Endpoints
             {
                 _ApiKey = null;
 
-                var Endpoint = "http://localhost:" + LocalServerPort + "/auth/users/" + _UserID + "/access_methods";
+                var Endpoint = "http://localhost:" + LocalServerPort + RootPath + "auth/users/" + _UserID + "/access_methods";
 
                 using var Handler = new HttpClientHandler
                 {

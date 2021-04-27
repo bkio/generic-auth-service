@@ -74,6 +74,12 @@ namespace AuthService.Endpoints.Controllers
             LocalServerPort = _Port;
         }
         private static int LocalServerPort;
+        
+        public static void SetRootPath(string _RootPath)
+        {
+            RootPath = _RootPath;
+        }
+        private static string RootPath;
 
         public bool RegisterUser(out string _UserID, string _RefreshToken, int _ExpiresInSeconds)
         {
@@ -335,7 +341,7 @@ namespace AuthService.Endpoints.Controllers
 
             var EmailAddressWithPostfix = _EmailWithoutPostfix + EMAIL_USER_NAME_POSTFIX;
 
-            var Endpoint = "http://localhost:" + LocalServerPort + "/auth/users";
+            var Endpoint = "http://localhost:" + LocalServerPort + RootPath + "auth/users";
 
             using var Handler = new HttpClientHandler
             {
@@ -423,7 +429,7 @@ namespace AuthService.Endpoints.Controllers
 
             _AccessMethod = EmailAddressWithPostfix + _PasswordMD5_FromAccessToken;
 
-            var Endpoint = "http://localhost:" + LocalServerPort + "/auth/users/" + _UserID + "/access_methods";
+            var Endpoint = "http://localhost:" + LocalServerPort + RootPath + "auth/users/" + _UserID + "/access_methods";
 
             using var Handler = new HttpClientHandler
             {
@@ -506,7 +512,7 @@ namespace AuthService.Endpoints.Controllers
         {
             _UserBaseRights = null;
 
-            var Endpoint = "http://localhost:" + LocalServerPort + "/auth/users/" + _UserID + "/base_access_rights";
+            var Endpoint = "http://localhost:" + LocalServerPort + RootPath + "auth/users/" + _UserID + "/base_access_rights";
 
             using var Handler = new HttpClientHandler
             {
@@ -563,7 +569,7 @@ namespace AuthService.Endpoints.Controllers
             _bInternalErrorOccured = false;
             _SSOMethods = null;
 
-            var Endpoint = "http://localhost:" + LocalServerPort + "/auth/users/" + _UserID + "/access_methods";
+            var Endpoint = "http://localhost:" + LocalServerPort + RootPath + "auth/users/" + _UserID + "/access_methods";
 
             using var Handler = new HttpClientHandler
             {
@@ -633,7 +639,7 @@ namespace AuthService.Endpoints.Controllers
 
             var AccessMethod = EmailAddressWithPostfix + _PasswordMD5_FromAccessToken;
 
-            var Endpoint = "http://localhost:" + LocalServerPort + "/auth/users/" + _UserID + "/access_methods/" + WebUtility.UrlEncode(AccessMethod);
+            var Endpoint = "http://localhost:" + LocalServerPort + RootPath + "auth/users/" + _UserID + "/access_methods/" + WebUtility.UrlEncode(AccessMethod);
 
             using var Handler = new HttpClientHandler
             {

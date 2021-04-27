@@ -81,8 +81,16 @@ namespace AuthService
 
             Resources_DeploymentManager.Get().SetDeploymentBranchNameAndBuildNumber(ServInit.RequiredEnvironmentVariables["DEPLOYMENT_BRANCH_NAME"], ServInit.RequiredEnvironmentVariables["DEPLOYMENT_BUILD_NUMBER"]);
 
+            var RootPath = "/";
+            if (ServInit.RequiredEnvironmentVariables["DEPLOYMENT_BRANCH_NAME"] != "master" && ServInit.RequiredEnvironmentVariables["DEPLOYMENT_BRANCH_NAME"] != "development")
+            {
+                RootPath = "/" + ServInit.RequiredEnvironmentVariables["DEPLOYMENT_BRANCH_NAME"] + "/";
+            }
+
             Controller_SSOAccessToken.SetLocalServerPort(ServInit.ServerPort);
+            Controller_SSOAccessToken.SetRootPath(RootPath);
             Controller_Rights_Internal.Get().SetLocalServerPort(ServInit.ServerPort);
+            Controller_Rights_Internal.Get().SetRootPath(RootPath);
 
             CommonData.MemoryQueryParameters = new BMemoryQueryParameters()
             {
@@ -147,23 +155,17 @@ namespace AuthService
                         ServInit.LoggingService.WriteLogs(BLoggingServiceMessageUtility.Single(EBLoggingServiceLogType.Error, Message), ServInit.ProgramID, "WebService");
                     });
 
-            var RootPath = "/";
-            if (ServInit.RequiredEnvironmentVariables["DEPLOYMENT_BRANCH_NAME"] != "master" && ServInit.RequiredEnvironmentVariables["DEPLOYMENT_BRANCH_NAME"] != "development")
-            {
-                RootPath = "/" + ServInit.RequiredEnvironmentVariables["DEPLOYMENT_BRANCH_NAME"] + "/";
-            }
-
             /*
             * Web-http service initialization
             */
             var WebServiceEndpoints = new List<BWebPrefixStructure>()
             {
-                new BWebPrefixStructure(new string[] { RootPath + "auth/internal/pubsub*" }, () => new InternalCalls.PubSub_To_AuthService(InternalCallPrivateKey, ServInit.DatabaseService)),
+                new BWebPrefixStructure(new string[] { RootPath + "auth/internal/pubsub*" }, () => new InternalCalls.PubSub_To_AuthService(InternalCallPrivateKey, ServInit.DatabaseService, RootPath)),
                 new BWebPrefixStructure(new string[] { RootPath + "auth/internal/cleanup*" }, () => new InternalCalls.CleanupCall(InternalCallPrivateKey, ServInit.DatabaseService, ServInit.MemoryService)),
                 new BWebPrefixStructure(new string[] { RootPath + "auth/internal/fetch_user_ids_from_emails*" }, () => new InternalCalls.FetchUserIDsFromEmailsRequest(InternalCallPrivateKey, ServInit.DatabaseService)),
                 new BWebPrefixStructure(new string[] { RootPath + "auth/internal/set*" }, () => new InternalCalls.SetCall(InternalCallPrivateKey, ServInit.MemoryService)),
-                new BWebPrefixStructure(new string[] { RootPath + "auth/internal/create_test_user*" }, () => new InternalCalls.CreateTestUser(InternalCallPrivateKey, ServInit.DatabaseService, ServInit.ServerPort)),
-                new BWebPrefixStructure(new string[] { RootPath + "auth/internal/delete_test_user*" }, () => new InternalCalls.DeleteTestUser(InternalCallPrivateKey, ServInit.ServerPort)),
+                new BWebPrefixStructure(new string[] { RootPath + "auth/internal/create_test_user*" }, () => new InternalCalls.CreateTestUser(InternalCallPrivateKey, ServInit.DatabaseService, ServInit.ServerPort, RootPath)),
+                new BWebPrefixStructure(new string[] { RootPath + "auth/internal/delete_test_user*" }, () => new InternalCalls.DeleteTestUser(InternalCallPrivateKey, ServInit.ServerPort, RootPath)),
                 new BWebPrefixStructure(new string[] { RootPath + "auth/internal/synchronize_users_with_azure*" }, () => new InternalCalls.SynchronizeUsersWithAzureAD(InternalCallPrivateKey, AzureAD_TenantID, AzureAD_AppID, AzureAD_ClientSecret, AzureAD_AppObjectID, ServInit.DatabaseService, SSOSuperAdmins)),
                 new BWebPrefixStructure(new string[] { RootPath + "auth/login/azure/token_refresh" }, () => new SSOAzureTokenRefreshRequest(ServInit.DatabaseService, ServInit.MemoryService, AzureAD_TenantID, AzureAD_AppID, AzureAD_ClientSecret, SSOSuperAdmins)/*For token refresh requests via Azure AD SSO Service*/),
                 new BWebPrefixStructure(new string[] { RootPath + "auth/login/azure/*" }, () => new SSOAzureLoginCallback(ServInit.DatabaseService, ServInit.MemoryService, AzureAD_TenantID, AzureAD_AppID, AzureAD_ClientSecret, SSOSuperAdmins)/*For auto-redirect from Azure AD SSO Service*/),

@@ -21,10 +21,12 @@ namespace AuthService.Endpoints
         internal class PubSub_To_AuthService : PubSubServiceBaseTimeoutableDeliveryEnsurerUser
         {
             private readonly IBDatabaseServiceInterface DatabaseService;
+            private readonly string RootPath;
 
-            public PubSub_To_AuthService(string _InternalCallPrivateKey, IBDatabaseServiceInterface _DatabaseService) : base(_InternalCallPrivateKey)
+            public PubSub_To_AuthService(string _InternalCallPrivateKey, IBDatabaseServiceInterface _DatabaseService, string _RootPath) : base(_InternalCallPrivateKey)
             {
                 DatabaseService = _DatabaseService;
+                RootPath = _RootPath;
             }
 
             protected override bool Handle(HttpListenerContext _Context, ServiceUtilities.Action _Action, Action<string> _ErrorMessageAction = null)
@@ -148,8 +150,8 @@ namespace AuthService.Endpoints
 
                 var PathsRegex = new Tuple<string, List<string>>[]
                 {
-                    new Tuple<string, List<string>>("/3d/models/" + _Action.ModelID + "*", new List<string>() { "GET" }), //Only view access
-                    new Tuple<string, List<string>>("/3d/models/" + _Action.ModelID + "/remove_sharing_from/user_id/{shareeUserId}", new List<string>() { "DELETE" })
+                    new Tuple<string, List<string>>(RootPath + "3d/models/" + _Action.ModelID + "*", new List<string>() { "GET" }), //Only view access
+                    new Tuple<string, List<string>>(RootPath + "3d/models/" + _Action.ModelID + "/remove_sharing_from/user_id/{shareeUserId}", new List<string>() { "DELETE" })
                 };
 
                 if (!UpdateUsersSharedModelsFields(ToBeAddedUsers, _Action.ModelID, Controller_Rights_Internal.EChangeUserRightsForModelType.Add, _ErrorMessageAction)) return false;

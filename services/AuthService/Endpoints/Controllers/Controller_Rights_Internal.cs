@@ -35,6 +35,12 @@ namespace AuthService.Endpoints.Controllers
         }
         private int LocalServerPort;
 
+        public void SetRootPath(string _RootPath)
+        {
+            RootPath = _RootPath;
+        }
+        private string RootPath;
+
         public void SetMemoryService(IBMemoryServiceInterface _MemoryService)
         {
             MemoryService = _MemoryService;
@@ -52,37 +58,37 @@ namespace AuthService.Endpoints.Controllers
                 JObject.Parse(JsonConvert.SerializeObject(
                     new AccessScope()
                     {
-                        WildcardPath = "/auth/users/" + _UserID,
+                        WildcardPath = RootPath + "auth/users/" + _UserID,
                         AccessRights = new List<string>() { "GET", "POST" }
                     })),
                 JObject.Parse(JsonConvert.SerializeObject(
                     new AccessScope()
                     {
-                        WildcardPath = "/auth/users/" + _UserID + "/*",
+                        WildcardPath = RootPath + "auth/users/" + _UserID + "/*",
                         AccessRights = new List<string>() { "GET", "POST", "PUT", "DELETE" }
                     })),
                 JObject.Parse(JsonConvert.SerializeObject(
                     new AccessScope()
                     {
-                        WildcardPath = "/auth/list_registered_email_addresses",
+                        WildcardPath = RootPath + "auth/list_registered_email_addresses",
                         AccessRights = new List<string>() { "GET" }
                     })),
                 JObject.Parse(JsonConvert.SerializeObject(
                     new AccessScope()
                     {
-                        WildcardPath = "/3d/models",
+                        WildcardPath = RootPath + "3d/models",
                         AccessRights = new List<string>() { "PUT" }
                     })),
                 JObject.Parse(JsonConvert.SerializeObject(
                     new AccessScope()
                     {
-                        WildcardPath = "/3d/models/globally_shared",
+                        WildcardPath = RootPath + "3d/models/globally_shared",
                         AccessRights = new List<string>() { "GET" }
                     })),
                 JObject.Parse(JsonConvert.SerializeObject(
                     new AccessScope()
                     {
-                        WildcardPath = "/3d/models/get_models_by/user_id/" + _UserID + "/*",
+                        WildcardPath = RootPath + "3d/models/get_models_by/user_id/" + _UserID + "/*",
                         AccessRights = new List<string>() { "GET" }
                     }))
             };
@@ -92,13 +98,13 @@ namespace AuthService.Endpoints.Controllers
                 _Result.Add(JObject.Parse(JsonConvert.SerializeObject(
                 new AccessScope()
                 {
-                    WildcardPath = "/3d/models/" + ModelId + "*",
+                    WildcardPath = RootPath + "3d/models/" + ModelId + "*",
                     AccessRights = new List<string>() { "GET" } //Only view access
                 })));
                 _Result.Add(JObject.Parse(JsonConvert.SerializeObject(
                 new AccessScope()
                 {
-                    WildcardPath = "/3d/models/" + ModelId + "/remove_sharing_from/user_id/" + _UserID,
+                    WildcardPath = RootPath + "3d/models/" + ModelId + "/remove_sharing_from/user_id/" + _UserID,
                     AccessRights = new List<string>() { "DELETE" }
                 })));
             }
@@ -196,11 +202,11 @@ namespace AuthService.Endpoints.Controllers
 
                         }.ToString(), Encoding.UTF8, "application/json");
 
-                    RequestTask = Client.PutAsync("http://localhost:" + LocalServerPort + "/auth/users/" + _UserID + "/base_access_rights", RequestContent);
+                    RequestTask = Client.PutAsync("http://localhost:" + LocalServerPort + RootPath + "auth/users/" + _UserID + "/base_access_rights", RequestContent);
                 }
                 else
                 {
-                    RequestTask = Client.DeleteAsync("http://localhost:" + LocalServerPort + "/auth/users/" + _UserID + "/base_access_rights/" + WebUtility.UrlEncode(_PathRegex));
+                    RequestTask = Client.DeleteAsync("http://localhost:" + LocalServerPort + RootPath + "auth/users/" + _UserID + "/base_access_rights/" + WebUtility.UrlEncode(_PathRegex));
                 }
 
                 RequestTask.Wait();
@@ -247,7 +253,7 @@ namespace AuthService.Endpoints.Controllers
 
         public bool GrantUserWithRights(bool _bDoNotGetDBClearance, string _UserID, JArray _Rights, Action<string> _ErrorMessageAction)
         {
-            var Endpoint = "http://localhost:" + LocalServerPort + "/auth/users/" + _UserID + "/base_access_rights";
+            var Endpoint = "http://localhost:" + LocalServerPort + RootPath + "auth/users/" + _UserID + "/base_access_rights";
 
             using var Handler = new HttpClientHandler
             {

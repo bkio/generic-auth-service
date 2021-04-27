@@ -15,16 +15,14 @@ namespace AuthService.Endpoints
     {
         internal class DeleteTestUser : InternalWebServiceBase
         {
-            public DeleteTestUser(string _InternalCallPrivateKey, int _ServerPort) : base(_InternalCallPrivateKey)
-            {
-                SetLocalServerPort(_ServerPort);
-            }
+            private readonly int LocalServerPort;
+            private readonly string RootPath;
 
-            public static void SetLocalServerPort(int _Port)
+            public DeleteTestUser(string _InternalCallPrivateKey, int _LocalServerPort, string _RootPath) : base(_InternalCallPrivateKey)
             {
-                LocalServerPort = _Port;
+                LocalServerPort = _LocalServerPort;
+                RootPath = _RootPath;
             }
-            private static int LocalServerPort;
 
             protected override BWebServiceResponse Process(HttpListenerContext _Context, Action<string> _ErrorMessageAction = null)
             {
@@ -72,7 +70,7 @@ namespace AuthService.Endpoints
 
             private bool DeleteUser(string _UserID, Action<string> _ErrorMessageAction, string _OptionalName = null)
             {
-                var Endpoint = "http://localhost:" + LocalServerPort + "/auth/users/" + _UserID;
+                var Endpoint = "http://localhost:" + LocalServerPort + RootPath + "auth/users/" + _UserID;
 
                 using var Handler = new HttpClientHandler
                 {
