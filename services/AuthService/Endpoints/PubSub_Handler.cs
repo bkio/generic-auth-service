@@ -31,6 +31,7 @@ namespace AuthService.Endpoints
 
             protected override bool Handle(HttpListenerContext _Context, ServiceUtilities.Action _Action, Action<string> _ErrorMessageAction = null)
             {
+                _ErrorMessageAction?.Invoke($"Info: PubSub_To_AuthService->Handle: {_Action.GetActionType().ToString()}");
                 if (_Action.GetActionType() == Actions.EAction.ACTION_AUTH_SERVICE_DELIVERY_ENSURER)
                 {
                     Controller_DeliveryEnsurer.Get().Retry_FireAndForget_Operation(_Context, (Action_DeliveryEnsurer)_Action, _ErrorMessageAction);
