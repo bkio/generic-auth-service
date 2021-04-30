@@ -117,7 +117,7 @@ Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "BServiceUtilities-DatabaseS
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BWebServiceUtilities-Basic", "submodules\BDotNetFramework\Utilities\BWebServiceUtilities-Basic\BWebServiceUtilities-Basic.csproj", "{B0C8425A-AF54-4679-988F-9C4A095A33B3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BCloudServiceUtilities-BVMService-AZ", "submodules\BDotNetFramework\Utilities\BCloudServiceUtilities-BVMService-AZ\BCloudServiceUtilities-BVMService-AZ.csproj", "{4DA51EC1-D4A9-4B34-ADCB-A00D88202B0A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BCloudServiceUtilities-BVMService-AZ", "submodules\BDotNetFramework\Utilities\BCloudServiceUtilities-BVMService-AZ\BCloudServiceUtilities-BVMService-AZ.csproj", "{4DA51EC1-D4A9-4B34-ADCB-A00D88202B0A}"
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
