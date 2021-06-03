@@ -84,7 +84,7 @@ namespace AuthService
             var RootPath = "/";
             if (ServInit.RequiredEnvironmentVariables["DEPLOYMENT_BRANCH_NAME"] != "master" && ServInit.RequiredEnvironmentVariables["DEPLOYMENT_BRANCH_NAME"] != "development")
             {
-                RootPath = "/" + ServInit.RequiredEnvironmentVariables["DEPLOYMENT_BRANCH_NAME"] + "/";
+                RootPath = "/" + ServInit.RequiredEnvironmentVariables["DEPLOYMENT_BUILD_NUMBER"] + "/";
             }
 
             Controller_SSOAccessToken.SetLocalServerPort(ServInit.ServerPort);
