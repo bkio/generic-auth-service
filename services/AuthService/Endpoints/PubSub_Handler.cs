@@ -18,7 +18,7 @@ namespace AuthService.Endpoints
 {
     partial class InternalCalls
     {
-        internal class PubSub_To_AuthService : PubSubServiceBaseWebhookTimeoutableDeliveryEnsurerUser
+        internal class PubSub_To_AuthService : PubSubServiceBaseTimeoutableDeliveryEnsurerUser
         {
             private readonly IBDatabaseServiceInterface DatabaseService;
             private readonly string RootPath;
