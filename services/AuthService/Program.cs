@@ -58,6 +58,7 @@ namespace AuthService
 
                     new string[] { "DEPLOYMENT_BRANCH_NAME" },
                     new string[] { "DEPLOYMENT_BUILD_NUMBER" },
+                    new string[] { "INTERNAL_CALL_PRIVATE_KEY" },
 
                     new string[] { "REDIS_ENDPOINT" },
                     new string[] { "REDIS_PORT" },
@@ -69,9 +70,7 @@ namespace AuthService
                     new string[] { "AZUREAD_CLIENT_SECRET" },
                     new string[] { "AZUREAD_APP_OBJECT_ID" },
 
-                    new string[] { "API_GATEWAY_PUBLIC_URL" },
-
-                    new string[] { "INTERNAL_CALL_PRIVATE_KEY" }
+                    new string[] { "API_GATEWAY_PUBLIC_URL" }
                 }))
                 return;
             bool bInitSuccess = true;
